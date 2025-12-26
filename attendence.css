@@ -1,0 +1,444 @@
+:root {
+    /* Color Variables matching the dark theme */
+    --background-dark: #121212;
+    --surface-dark: #1e1e1e;
+    --surface-light: #2c2c2c;
+    --text-white: #ffffff;
+    --text-light-grey: #e0e0e0;
+    --text-medium-grey: #aaaaaa;
+    --primary-orange: rgb(14, 160, 163); /* Main accent color */
+    --accent-orange-light: #ffb74d; /* For the orange text in cards */
+    --gradient-orange-start: #ffae42;
+    --gradient-orange-end: #ff8c00;
+    --check-present: #4caf50; /* Green checkmark */
+    --check-absent: #f44336; /* Red X mark */
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --border-radius-base: 8px;
+}
+
+/* Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-dark);
+    color: var(--text-light-grey);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* === 1. Navigation Bar === */
+.navbar {
+    background-color: var(--surface-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.logo-icon {
+    background-color: var(--primary-orange);
+    color: var(--background-dark);
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-right: 8px;
+    font-size: 1.2rem;
+}
+
+.nav-links a {
+    margin-left: 25px;
+    padding: 5px 0;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-links a.active {
+    color: var(--primary-orange);
+    border-bottom: 2px solid var(--primary-orange);
+}
+
+.login-button {
+    background: linear-gradient(to right, var(--gradient-orange-start), var(--primary-orange));
+    color: var(--text-white);
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius-base);
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+}
+
+/* === Main Content Layout === */
+.content-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    flex-grow: 1;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-white);
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.page-subtitle {
+    font-size: 1rem;
+    color: var(--text-medium-grey);
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* === 2. Daily Attendance Summary View === */
+.daily-attendance-summary {
+    margin-bottom: 50px;
+}
+
+.summary-cards {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.card {
+    background-color: var(--surface-light);
+    border-radius: var(--border-radius-base);
+    padding: 30px 20px;
+    flex: 1;
+    text-align: center;
+}
+
+.card .count {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.card .label {
+    font-size: 1rem;
+    color: var(--text-medium-grey);
+    font-weight: 400;
+}
+
+.orange-text {
+    color: var(--accent-orange-light);
+}
+
+.white-text {
+    color: var(--text-white);
+}
+
+.total-card {
+    background-color: var(--primary-orange);
+    color: var(--text-white);
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+}
+
+/* === 3. Mark Today's Attendance Component === */
+.mark-attendance-component {
+    background-color: var(--surface-dark);
+    border-radius: var(--border-radius-base);
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto 50px auto;
+    text-align: center;
+    box-shadow: 0 8px 16px var(--shadow-color);
+}
+
+.component-title {
+    font-size: 2rem;
+    color: var(--text-white);
+    margin-bottom: 10px;
+}
+
+.date-info {
+    color: var(--text-medium-grey);
+    margin-bottom: 30px;
+}
+
+.meal-options {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.meal-card {
+    background-color: var(--surface-light);
+    padding: 20px;
+    border-radius: var(--border-radius-base);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    position: relative;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.meal-card input[type="checkbox"] {
+    /* Hide default checkbox */
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Custom Checkbox Styling */
+.custom-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--text-light-grey);
+    background-color: #383838; /* Slightly lighter background inside checkbox */
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+}
+
+.meal-card input[type="checkbox"]:checked + .custom-checkbox {
+    background-color: var(--primary-orange);
+    border-color: var(--primary-orange);
+}
+
+.meal-card .time-range {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-medium-grey);
+    margin-top: 5px;
+}
+
+.submit-btn {
+    width: 100%;
+    background: #ff9800;
+    color: #000;
+    border: none;
+    padding: 18px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s; 
+}
+.submit-btn:hover {
+    background: #e68a00;
+    transform: scale(1.01);
+}
+
+.submit-btn:active {
+    transform: scale(0.99);
+}
+
+/* === 4. Attendance History View === */
+.attendance-history-view {
+    background-color: var(--surface-dark);
+    border-radius: var(--border-radius-base);
+    padding: 30px;
+    box-shadow: 0 8px 16px var(--shadow-color);
+    margin-top: 50px; /* Separates it from the attendance card */
+    /* This hides the history section until the script turns it on */
+    display: none;
+
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: var(--text-white);
+}
+
+#history-container {
+    margin-top: 50px;
+    /* Initially hidden via JavaScript if desired, 
+       but here is the styling for when it shows */
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.month-label {
+    background-color: var(--surface-light);
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+}
+
+.attendance-table th, .attendance-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #333;
+}
+
+.attendance-table th {
+    font-weight: 600;
+    color: var(--text-medium-grey);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    padding-top: 0;
+}
+
+.attendance-table tr:hover {
+    background-color: #252525;
+}
+/* Container for the checkbox */
+.checkbox-container {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    user-select: none;
+    color: white;
+}
+
+/* Hide the browser's default checkbox */
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Create a custom checkbox (the box) */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #333; /* Dark background to match your cards */
+    border: 2px solid #ff9800; /* Orange border */
+    border-radius: 4px;
+}
+
+/* On mouse-over, add a grey background color */
+.checkbox-container:hover input ~ .checkmark {
+    background-color: #444;
+}
+
+/* When the checkbox is checked, add an orange background */
+.checkbox-container input:checked ~ .checkmark {
+    background-color: #ff9800;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark (the white tick) */
+.checkbox-container .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+
+
+
+
+/* === 5. Footer === */
+.main-footer {
+    background-color: var(--surface-dark);
+    color: var(--text-medium-grey);
+    padding: 40px 50px 10px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 30px;
+    border-top: 1px solid #2c2c2c;
+    margin-top: 50px;
+}
+
+.footer-section h3 {
+    color: var(--text-white);
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.footer-section p, .footer-section ul {
+    font-size: 0.9rem;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section li {
+    margin-bottom: 8px;
+}
+
+.footer-bottom {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid #2c2c2c;
+    margin-top: 20px;
+    font-size: 0.8rem;
+    color: #666;
+}
+.meal-card:hover .card-content {
+    border-color: #555;
+    background: #2a2a2a;
+}
+
+/* SELECTED STATE: When checkbox is checked, style the sibling .card-content */
+.meal-card input:checked + .card-content {
+    border-color: #ff9800;
+    background: #332a1e;
+    box-shadow: 0 0 20px rgba(255, 152, 0, 0.2);
+    transform: translateY(-5px);
+}
+
+.meal-card input:checked + .card-content span {
+    color: #ff9800;
+}

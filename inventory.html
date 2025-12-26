@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessPro Admin - Inventory</title>
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="inventory.css">
+</head>
+<body>
+   <nav class="admin-nav">
+    <div class="logo">MessPro Admin</div>
+    <div class="nav-links">
+        <a href="index3.html">Home</a>
+        <a href="admin.html">Dashboard</a>
+        <a href="users.html" >User Management</a>
+        <a href="inventory.html" class="active">Inventory</a>
+    </div>
+    <button class="logout-btn" onclick="adminLogout()">Admin Logout</button>
+    </nav>
+
+    <div class="inventory-container">
+        <h2>Mess Stock Inventory</h2>
+        
+        <div class="inventory-grid">
+            <div class="stock-item">
+                <div class="stock-info">
+                    <h3>Rice</h3>
+                    <p>Stock: 120 KG</p>
+                </div>
+                <div class="progress-bar"><div class="fill green" style="width: 80%;"></div></div>
+            </div>
+
+            <div class="stock-item">
+                <div class="stock-info">
+                    <h3>Cooking Oil</h3>
+                    <p>Stock: 15 Liters</p>
+                </div>
+                <div class="progress-bar"><div class="fill red" style="width: 15%;"></div></div>
+                <span class="alert">Low Stock!</span>
+            </div>
+
+            <div class="stock-item">
+                <div class="stock-info">
+                    <h3>Vegetables</h3>
+                    <p>Stock: 45 KG</p>
+                </div>
+                <div class="progress-bar"><div class="fill yellow" style="width: 45%;"></div></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

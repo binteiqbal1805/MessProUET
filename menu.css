@@ -1,0 +1,157 @@
+/* --- Menu Page Specific Styles --- */
+.menu-page-main {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+/* --- Menu Page Specific Styles (Modern Format) --- */
+
+.menu-section {
+    padding: var(--padding-section) 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.menu-container {
+    background-color: var(--card-bg); /* Dark card background */
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.weekly-menu-table.modern-format {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    font-size: 1.05em;
+}
+
+/* Style the table head to match the dark theme */
+.weekly-menu-table.modern-format thead {
+    background-color: transparent;
+    color: var(--text-light);
+    font-weight: normal;
+    font-size: 1.1em;
+}
+
+.weekly-menu-table.modern-format th {
+    padding: 20px 15px;
+    text-align: left;
+    /* Remove the bottom border from the header row */
+    border-bottom: none; 
+}
+
+/* Style for table body rows and cells */
+.weekly-menu-table.modern-format td {
+    padding: 18px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Very light separator */
+}
+
+/* Highlight for day column (first column) */
+.weekly-menu-table.modern-format td:first-child {
+    font-weight: bold;
+    color: var(--text-light); /* Day text is white/light */
+    width: 15%; 
+    min-width: 140px;
+    /* Use a slightly darker background for the day column */
+    background-color: #242424; 
+}
+
+/* Row hover effect */
+.weekly-menu-table.modern-format tbody tr:hover {
+    background-color: #333333; /* Darker grey on hover */
+}
+
+/* Dot Styles */
+.dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.breakfast-dot {
+    background-color: #fce302; /* Yellow/Orange */
+}
+
+.lunch-dot {
+    background-color: #ff8c00; /* Orange (Primary color) */
+}
+
+.dinner-dot {
+    background-color: #33a7e4; /* Blue */
+}
+
+/* General Menu Note/Download Button */
+.menu-note {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.download-btn {
+    background-color: #00bcd4; /* Matches your cyan theme color */
+    color: #000;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    font-weight: bold;
+    margin-top: 20px;
+    cursor: pointer;
+    border: none;
+}
+
+.download-btn:hover {
+    background-color: #008c9e;
+    transition: 0.3s;
+}
+/* --- Meal Timings Section Styles --- */
+
+.timings-section {
+    background-color: #242424; /* A slightly lighter dark background than the main page/cards */
+    padding: 30px 5%;
+    margin-bottom: 40px; /* Space between the timings and the menu table */
+}
+
+.timings-container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.time-card {
+    background-color: #333333; /* Dark card background */
+    padding: 15px 30px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: 500;
+    flex-grow: 1;
+    max-width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.time-label {
+    color: var(--primary-color); /* Bright orange color for the label */
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.time-slot {
+    color: var(--text-light); /* White/light color for the time */
+}
+
+/* Optional: Add media query for smaller screens */
+@media (max-width: 768px) {
+    .timings-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .time-card {
+        max-width: 100%;
+    }
+}

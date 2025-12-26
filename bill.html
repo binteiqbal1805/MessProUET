@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessPro - Billing</title>
+    <link rel="stylesheet" href="style3.css"> 
+    <link rel="stylesheet" href="bill.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">
+            <i class="fas fa-utensils"></i> MessPro
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index3.html" >Home</a></li>
+                <li><a href="menu.html" >Menu</a></li> 
+                <li><a href="login.html" >Login</a></li>
+                <li><a href="attendence.html" >Attendence</a></li>
+                <li><a href="bill.html" class="active">Bill</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="complaint.html">Complaint</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+        <button class="login-btn">Login</button>
+    </header>
+
+<main class="content-container">
+    <div class="header-section">
+        <h1 class="page-title">Monthly Billing Summary</h1>
+        <p class="page-subtitle">Review your mess charges and payment status.</p>
+    </div>
+
+    <div class="billing-summary-grid">
+        <div class="bill-card">
+            <div class="label">Total Payable</div>
+            <div id="totalAmount" class="value cyan-text">2,450</div>
+            <div class="sub-label">For December 2025</div>
+        </div>
+
+        <div class="bill-card active-card">
+            <div class="label">Due Date</div>
+            <div class="value white-text date-text">Dec 25, 2025</div>
+            <button class="pay-btn" onclick="payBill()">Pay Now</button>
+        </div>
+
+        <div class="bill-card">
+            <div class="label">Status</div>
+            <div id="statusLabel" class="value orange-text status-text">Pending</div>
+            <div class="sub-label">Payment not received</div>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <h3 class="section-title">Payment History</h3>
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>MONTH</th>
+                    <th>MEAL COUNT</th>
+                    <th>EXTRA CHARGES</th>
+                    <th>TOTAL AMOUNT</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody id="billingHistoryBody">
+                </tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+    const user = localStorage.getItem('loggedUser');
+    const MEAL_RATE = 30;
+
+    window.onload = async () => {
+        if (!user) return window.location.href = "login.html";
+        
+        try {
+            const res = await fetch(`/api/attendance-history/${user}`);
+            const data = await res.json();
+            
+            let meals = 0;
+            data.forEach(d => { if(d.breakfast) meals++; if(d.lunch) meals++; if(d.dinner) meals++; });
+
+            const total = meals * MEAL_RATE;
+            document.getElementById('totalAmount').innerText = total.toLocaleString();
+            
+            const historyBody = document.getElementById('billingHistoryBody');
+            historyBody.innerHTML = `
+                <tr>
+                    <td>December</td>
+                    <td>${meals}</td>
+                    <td>0</td>
+                    <td>${total}</td>
+                    <td class="status-unpaid" id="rowStatus">Unpaid</td>
+                </tr>
+                <tr><td>November</td><td>88</td><td>150</td><td>2,350</td><td class="status-paid">Paid</td></tr>
+                <tr><td>October</td><td>90</td><td>0</td><td>2,200</td><td class="status-paid">Paid</td></tr>
+            `;
+        } catch (e) { console.error(e); }
+    };
+
+    function payBill() {
+        alert("Payment Successful!");
+        document.getElementById('statusLabel').innerText = "Paid";
+        document.getElementById('statusLabel').className = "value status-paid-text";
+        document.getElementById('rowStatus').innerText = "Paid";
+        document.getElementById('rowStatus').className = "status-paid";
+    }
+</script>
+</body>
+</html>

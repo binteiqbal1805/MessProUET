@@ -1,0 +1,324 @@
+/* --- Variables & Global Reset --- */
+:root {
+    --primary-color:#06B6D4; /* Bright Orange */
+    --secondary-color:gray;  /* Dark Gray/Black for contrast buttons */
+    --text-light: #fff;
+    --text-dark: #333;
+    --bg-dark:#0F172A; /* Dark background color from MessPro design */
+    --card-bg: #292929; /* Slightly lighter dark background for cards */
+    --padding-section: 60px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif; /* Use your preferred font */
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: var(--primary-color);
+}
+
+ul {
+    list-style: none;
+}
+
+/* --- Utility Classes --- */
+.btn {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn.primary {
+    background-color: var(--primary-color);
+    color: var(--text-dark);
+}
+
+.btn.secondary {
+    background-color: transparent;
+    border: 2px solid var(--text-light);
+    color: var(--text-light);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-header h2 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+/* --- Header/Navbar --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    background-color: var(--bg-dark);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.navbar nav ul {
+    display: flex;
+    gap: 30px;
+}
+
+.navbar nav a {
+    padding: 5px 0;
+    border-bottom: 2px solid transparent;
+}
+
+.navbar nav a.active,
+.navbar nav a:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Styling for the bottom Login button */
+.login-btn {
+    background-color: #333;
+    color: white;
+    padding: 12px 30px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+/* Keeps feature boxes looking like cards */
+.feature-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+/* --- Hero Section (Uses the last image's theme) --- */
+.hero-section {
+    /* !!! IMPORTANT: Replace 'path/to/your/image.jpg' with the actual image URL/path from the last page !!! */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('path/to/your/image.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 80vh; /* Adjust as needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero-content {
+    max-width: 800px;
+    padding: 20px;
+}
+
+.welcome-text {
+    background-color: var(--primary-color);
+    color: var(--text-dark);
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.hero-content h1 {
+    font-size: 3.5em;
+    margin-bottom: 15px;
+}
+
+.hero-content h1 span {
+    color: var(--primary-color);
+}
+
+.tagline {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+}
+
+.hero-buttons .btn {
+    margin: 0 10px;
+    font-size: 1.1em;
+}
+
+/* --- Feature/Interaction Sections --- */
+.features-section,
+.interaction-section {
+    padding: var(--padding-section) 5%;
+    background-color: var(--bg-dark);
+}
+
+.interaction-section {
+    /* Separator line style from the MessPro design */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feature-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: left;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-icon {
+    font-size: 2.5em;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    background-color: var(--primary-color);
+    color: var(--card-bg);
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+/* --- Stats Section --- */
+.stats-section {
+    padding: 40px 5%;
+    background-color: var(--bg-dark);
+    text-align: center;
+}
+
+.stats-grid {
+    display: flex;
+    justify-content: space-around;
+    max-width: 1000px;
+    margin: 0 auto;
+    /* This centers the 4 stats horizontally in the MessPro design */
+}
+
+.stat-item {
+    padding: 0 10px;
+}
+
+.stat-number {
+    font-size: 3em;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* --- Call to Action Section --- */
+.cta-section {
+    background-color: var(--primary-color);
+    padding: var(--padding-section) 5%;
+    text-align: center;
+}
+
+.cta-content {
+    max-width: 700px;
+    margin: 0 auto;
+    color: var(--text-dark);
+}
+
+.cta-content h2 {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+}
+
+.cta-content p {
+    font-size: 1.1em;
+    margin-bottom: 30px;
+}
+
+.login-btn.large {
+    background-color: var(--text-dark);
+    color: var(--text-light);
+    padding: 15px 40px;
+    font-size: 1.1em;
+}
+
+/* --- Footer --- */
+.footer {
+    background-color: var(--bg-dark);
+    padding: var(--padding-section) 5% 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-col h3 {
+    font-size: 1.3em;
+    color: var(--text-light);
+    margin-bottom: 20px;
+}
+
+.footer-col.about .logo {
+    margin-bottom: 10px;
+}
+
+.footer-col ul li {
+    margin-bottom: 10px;
+}
+
+.footer-col address i {
+    margin-right: 10px;
+    color: var(--primary-color);
+}
+
+.footer-col a:hover {
+    color: var(--primary-color);
+}

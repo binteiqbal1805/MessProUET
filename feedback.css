@@ -1,0 +1,14 @@
+:root { --bg: #050a12; --card: #0c1421; --cyan: #00d2ff; --orange: #ff9800; }
+body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; }
+.content-container { max-width: 700px; margin: 50px auto; padding: 0 20px; }
+.page-title { font-size: 2rem; color: var(--orange); }
+.page-subtitle { color: #888; margin-bottom: 30px; }
+.box { background: var(--card); padding: 30px; border-radius: 12px; border: 1px solid #1a2433; }
+.form-group { margin-bottom: 25px; }
+.form-label { color: var(--cyan); display: block; margin-bottom: 12px; font-weight: bold; }
+.rating-row { display: flex; justify-content: space-around; }
+.star-item input { display: none; }
+.star-item span { background: #1e293b; padding: 15px 25px; border-radius: 30px; cursor: pointer; border: 1px solid #334155; transition: 0.3s; }
+.star-item input:checked + span { background: var(--orange); color: black; font-weight: bold; }
+.input-area { width: 100%; background: #1e293b; border: 1px solid #334155; padding: 12px; color: white; border-radius: 6px; height: 100px; box-sizing: border-box; }
+.action-btn { width: 100%; background: var(--orange); border: none; padding: 15px; border-radius: 6px; font-weight: bold; cursor: pointer; color: black; }

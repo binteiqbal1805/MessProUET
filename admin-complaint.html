@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MessPro Admin - View Complaints</title>
+    <link rel="stylesheet" href="style3.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .complaints-grid { display: grid; gap: 20px; margin-top: 20px; }
+        .complaint-card { 
+            background: #0a1128; border: 1px solid #1e293b; 
+            padding: 20px; border-radius: 10px; 
+        }
+        .complaint-card h3 { color: #11cbd7; margin-bottom: 10px; }
+        .date { color: #94a3b8; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">MessPro Admin</div>
+        <ul class="nav-links">
+            <li><a href="admin.html">Dashboard</a></li>
+            <li><a href="admin-complaint.html" class="active">Complaints</a></li>
+        </ul>
+    </nav>
+
+    <div class="admin-container">
+        <h1>Recent Complaints</h1>
+        <div id="complaintsList" class="complaints-grid">
+            <p>Loading complaints...</p>
+        </div>
+    </div>
+
+    <script>
+        async function fetchComplaint() {
+            try {
+                const response = await fetch('/api/get-complaints');
+                const complaints = await response.json();
+                const list = document.getElementById('complaintsList');
+                
+                if (complaints.length === 0) {
+                    list.innerHTML = "<p>No complaints found.</p>";
+                    return;
+                }
+
+                list.innerHTML = complaints.map(c => `
+                    <div class="complaint-card">
+                        <div style="display:flex; justify-content:space-between;">
+                            <h3>${c.category}</h3>
+                            <span class="date">${new Date(c.date).toLocaleDateString()}</span>
+                        </div>
+                        <p>${c.description}</p>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById('complaintsList').innerHTML = "Error loading data.";
+            }
+        }
+        fetchComplaint();
+    </script>
+</body>
+</html>

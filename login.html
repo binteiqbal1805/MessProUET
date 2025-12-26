@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessPro - User Login</title>
+    <link rel="stylesheet" href="style3.css"> 
+    <link rel="stylesheet" href="login.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">
+            <i class="fas fa-utensils"></i> MessPro
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="login.html" class="active">Login</a></li>
+                <li><a href="attendence.html">Attendence</a></li>
+                <li><a href="bill.html">Bill</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="complaint.html">Complaint</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+        <button class="login-btn active-login">Login</button>
+    </header>
+
+    <main class="login-page-main">
+        <div class="login-container">
+            <div class="login-form-card">
+                <h2>Welcome Back!</h2>
+                <p>Sign in to manage your mess attendance and bills.</p>
+
+                <form class="login-form">
+                    <div class="input-group">
+                        <label for="username"><i class="fas fa-user"></i> Username / ID</label>
+                        <input type="text" id="username" name="username" placeholder="Enter your Hostel ID" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="password"><i class="fas fa-lock"></i> Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+                    
+                    <div class="forgot-password">
+                        <a href="#">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn primary login-submit-btn">
+                        <i class="fas fa-sign-in-alt"></i> Log In
+                    </button>
+                </form>
+
+                <div class="register-link">
+                    <p>Don't have an account? <a href="#">Contact Admin to Register</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col about">
+                <div class="logo"><i class="fas fa-utensils"></i> MessPro</div>
+                <p>Simplifying hostel mess management for students and administrators.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="menu.html">Weekly Menu</a></li>
+                    <li><a href="attendence.html">Attendance</a></li>
+                    <li><a href="bill.html">Bill Calculator</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#">Feedback</a></li>
+                    <li><a href="#">File Complaint</a></li>
+                    <li><a href="#">Contact Admin</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Contact Us</h3>
+                <address>
+                    <i class="fas fa-map-marker-alt"></i> UET Lahore, Pakistan<br>
+                    <i class="fas fa-envelope"></i> mess@uet.edu.pk<br>
+                    <i class="fas fa-phone"></i> +92 42 9902 0000
+                </address>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+    const loginBtn = document.querySelector('.login-submit-btn'); // Matches your CSS class
+
+    loginBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        const username = document.querySelector('input[name="username"]').value;
+        const password = document.querySelector('input[name="password"]').value;
+
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Save the session locally
+                localStorage.setItem('loggedUser', username); 
+                alert("✅ " + (result.message || "Login successful!"));
+                window.location.href = "attendence.html"; // Redirect straight to attendance
+            } else {
+                // Shows the "Incorrect password" alert if password doesn't match
+                alert("❌ " + (result.error || "Invalid credentials"));
+            }
+        } catch (error) {
+            alert("❌ Connection failed. Ensure terminal shows 'Server running'.");
+        }
+        localStorage.setItem('loggedUser', username);
+    });
+</script>
+
+
+</body>
+</html>

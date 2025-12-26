@@ -1,0 +1,161 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessPro - Attendance</title>
+    <link rel="stylesheet" href="style3.css">
+    <link rel="stylesheet" href="attendence.css"> 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> </head>
+<body>
+<header class="navbar">
+        <div class="logo">
+            <i class="fas fa-utensils"></i> MessPro
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="login.html" >Login</a></li>
+                <li><a href="attendence.html" class="active">Attendence</a></li>
+                <li><a href="bill.html">Bill</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="complaint.html">Complaint</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+        <button class="login-btn active-login">Login</button>
+    </header>
+
+<main class="content-container">
+    <section class="daily-attendance-summary">
+        <h1 class="page-title">Daily Attendance</h1>
+        <p class="page-subtitle">Track your meal attendance and manage your mess presence</p>
+        
+        <div class="summary-cards">
+            <div class="card">
+                <div class="count orange-text">7</div>
+                <div class="label">Breakfasts</div>
+            </div>
+            <div class="card">
+                <div class="count orange-text">8</div>
+                <div class="label">Lunches</div>
+            </div>
+            <div class="card">
+                <div class="count orange-text">7</div>
+                <div class="label">Dinners</div>
+            </div>
+            <div class="card total-card">
+                <div class="count white-text">22</div>
+                <div class="label">Total Meals</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mark-attendance-component">
+        <div class="attendance-box">
+            <h2>Mark Today's Attendance</h2>
+            <div class="meal-options">
+                <label class="meal-card">
+                    <input type="checkbox" id="breakfast">
+                    <div class="card-content">
+                        <div class="icon">🍳</div>
+                        <span>Breakfast</span>
+                        <small>7:00 - 9:00 AM</small>
+                    </div>
+                </label>
+
+                <label class="meal-card">
+                    <input type="checkbox" id="lunch">
+                    <div class="card-content">
+                        <div class="icon">🍲</div>
+                        <span>Lunch</span>
+                        <small>12:30 - 2:30 PM</small>
+                    </div>
+                </label>
+
+                <label class="meal-card">
+                    <input type="checkbox" id="dinner">
+                    <div class="card-content">
+                        <div class="icon">🍽️</div>
+                        <span>Dinner</span>
+                        <small>7:30 - 9:30 PM</small>
+                    </div>
+                </label>
+            </div>
+            <button class="submit-btn" onclick="submitAttendance()">Submit Attendance</button>
+        </div>
+    </section>
+
+    <div id="history-container" style="display: none; margin-top: 30px;">
+        <h3 style="color: #ff9800; margin-bottom: 15px;">Your Attendance History</h3>
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Breakfast</th>
+                    <th>Lunch</th>
+                    <th>Dinner</th>
+                </tr>
+            </thead>
+            <tbody id="attendanceHistoryBody"></tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+    // CRITICAL: Get user from login
+    const loggedInUser = localStorage.getItem('loggedUser');
+
+    async function submitAttendance() {
+        if (!loggedInUser) {
+            alert("Please login first!");
+            window.location.href = "login.html";
+            return;
+        }
+
+        const attendanceData = {
+            username: loggedInUser,
+            date: new Date().toISOString().split('T')[0],
+            breakfast: document.getElementById('breakfast').checked ? 1 : 0,
+            lunch: document.getElementById('lunch').checked ? 1 : 0,
+            dinner: document.getElementById('dinner').checked ? 1 : 0
+        };
+
+        try {
+            const response = await fetch('/api/attendance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(attendanceData)
+            });
+
+            if (response.ok) {
+                alert("Attendance Saved Successfully!");
+                document.getElementById('history-container').style.display = 'block';
+                loadHistory();
+            } else {
+                // If you see this, check your VS Code terminal
+                alert("Server rejected the request. Check terminal for error.");
+            }
+        } catch (err) {
+            alert("Connection Error. Is 'node server.js' running?");
+        }
+    }
+
+    async function loadHistory() {
+        const res = await fetch(`/api/attendance-history/${loggedInUser}`);
+        const data = await res.json();
+        const historyBody = document.getElementById('attendanceHistoryBody');
+        
+        historyBody.innerHTML = data.map(row => `
+            <tr>
+                <td>${row.date}</td>
+                <td>${row.breakfast ? '✅' : '❌'}</td>
+                <td>${row.lunch ? '✅' : '❌'}</td>
+                <td>${row.dinner ? '✅' : '❌'}</td>
+            </tr>
+        `).join('');
+    }
+</script>
+</body>
+</html>

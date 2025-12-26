@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessPro Admin - User Management</title>
+    <link rel="stylesheet" href="admin.css"> <link rel="stylesheet" href="users.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+
+<nav class="admin-nav">
+    <div class="logo">MessPro Admin</div>
+    <div class="nav-links">
+        <a href="index3.html">Home</a>
+        <a href="admin.html">Dashboard</a>
+        <a href="users.html" class="active">User Management</a>
+        <a href="inventory.html">Inventory</a>
+    </div>
+    <button class="logout-btn" onclick="adminLogout()">Admin Logout</button>
+</nav>
+
+<main class="content-container">
+    <div class="table-header">
+        <h2 class="section-title">Registered Students</h2>
+        <div class="actions-row">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by Name or ID...">
+                <button onclick="searchStudents()">🔍</button>
+            </div>
+            <button class="add-btn" onclick="showAddStudentModal()">+ Add New Student</button>
+        </div>
+    </div>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Room No.</th>
+                <th>Plan Type</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="studentTableBody">
+            </tbody>
+    </table>
+</main>
+
+<script>
+function searchStudents() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#studentTableBody tr');
+        
+        rows.forEach(row => {
+            const name = row.cells[1].innerText.toLowerCase();
+            const id = row.cells[0].innerText.toLowerCase();
+            row.style.display = (name.includes(input) || id.includes(input)) ? "" : "none";
+        });
+    }
+    // 1. Load data when page opens
+    window.onload = loadStudents;
+
+    async function loadStudents() {
+        try {
+            const res = await fetch('/api/admin/users');
+            const students = await res.json();
+            
+            const body = document.getElementById('studentTableBody');
+            if (students.length === 0) {
+                body.innerHTML = '<tr><td colspan="6" style="text-align:center;">No students found</td></tr>';
+                return;
+            }
+
+            body.innerHTML = students.map(s => `
+                <tr>
+                    <td>#${s.username}</td>
+                    <td>${s.username === '1024' ? 'Rahul Sharma' : 'New Student'}</td>
+                    <td>B-201</td>
+                    <td>Regular</td>
+                    <td><span class="status-badge active">Active</span></td>
+                    <td>
+                        <button class="icon-btn">📝</button>
+                        <button class="icon-btn" onclick="deleteUser('${s.username}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (err) {
+            console.error("Failed to load students:", err);
+        }
+    }
+
+    // 2. Add Student Logic
+    async function showAddStudentModal() {
+        const username = prompt("Enter Student ID:");
+        const fullName = prompt("Enter Full Name:");
+        
+        if(!username) return;
+
+        const res = await fetch('/api/admin/add-student', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ username, fullName })
+        });
+        
+        if(res.ok) {
+            alert("✅ Student added successfully!");
+            // CRITICAL: This line refreshes the table so the new row appears
+            await loadStudents(); 
+        } else {
+            const err = await res.json();
+            alert("❌ Error: " + err.error);
+        }
+    }
+</script>
+</body>
+</html>

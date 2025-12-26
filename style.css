@@ -1,0 +1,67 @@
+/* Styling the navigation div */
+.nav {
+    width: 250px;
+    height: auto;
+    position: absolute;
+    top: 2%;
+    left: 0px;
+}
+
+/* Styling the links within the navigation div */
+.nav a {
+    width: 350px;
+    height: 50px;
+    margin: 5px 0;
+    float: left;
+    display: inline-block;
+    background-color: grey;
+    overflow: hidden;
+    font-family: verdana;
+    text-decoration: none;
+    font-size: 28px;
+    margin-top: 5px;
+    text-align: center;
+    line-height: ; /* This value is empty in source, but setting line-height to match height is common practice */
+    color: white;
+}
+
+/* Styling for unvisited and visited links */
+a:link, a:visited {
+    display: block;
+    font-weight: bold;
+    color: #FFFFFF;
+    background-color: black;
+    width: 130px;
+    text-align: center;
+    padding: 5px;
+    padding-top: 5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-size: 17px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+/* Styling for links on hover and active click */
+a:hover, a:active {
+    background-color: Brown;
+}
+/* Inserting background image and styling the body */
+body {
+    background: url("web\ bck.jpeg"); /* Replace "5.jpg" with your image file name */
+    background-size: cover;
+    padding: 3px;
+}
+
+/* Styling the content box */
+.boxed {
+    margin-left: 90px;
+    text-size: 50px;
+    margin-right: 180px;
+    line-height: 25px;
+    font-size: 25px;
+    height: 800px;
+    width: 700px;
+    padding: 50px;
+    background-color: #0a2966; /* A shade of orange/red */
+}

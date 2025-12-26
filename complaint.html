@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessPro - Lodge Complaint</title>
+    <link rel="stylesheet" href="style3.css"> 
+    <link rel="stylesheet" href="complaint.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+     <header class="navbar">
+        <div class="logo">
+            <i class="fas fa-utensils"></i> MessPro
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index3.html">Home</a></li>
+                <li><a href="menu.html" >Menu</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="attendence.html">Attendence</a></li>
+                <li><a href="bill.html">Bill</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+                <li><a href="complaint.html" class="active">Complaint</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+        <button class="login-btn">Login</button>
+    </header>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MessPro - Report Complaint</title>
+    <link rel="stylesheet" href="complaint.css">
+</head>
+<body>
+<main class="content-container">
+    <h1 class="page-title">Report an Issue</h1>
+    <p class="page-subtitle">Submit a formal complaint regarding mess services.</p>
+
+    <div class="box">
+        <div class="form-group">
+            <label class="form-label">Issue Category</label>
+            <div class="category-grid">
+                <label class="item-card">
+                    <input type="radio" name="cat" value="Hygiene" checked>
+                    <div class="card-box">🧼 Hygiene</div>
+                </label>
+                <label class="item-card">
+                    <input type="radio" name="cat" value="Behavior">
+                    <div class="card-box">😠 Behavior</div>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Subject</label>
+            <input type="text" id="subject" class="input-field" placeholder="e.g. Unclean utensils">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea id="desc" class="input-area" placeholder="Describe the problem in detail..."></textarea>
+        </div>
+
+        <button class="action-btn" onclick="sendComplaint()">Submit Complaint</button>
+    </div>
+</main>
+
+<script>
+    async function sendComplaint() {
+        const loggedUser = localStorage.getItem('loggedUser') || "Guest";
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('desc').value;
+        // Get selected category icon/text
+        const category = document.querySelector('input[name="cat"]:checked').value;
+
+        if (!subject || !message) {
+            alert("Plz fill out all field");
+            return;
+        }
+
+        const data = {
+            username: loggedUser,
+            type: "Complaint",
+            category: category,
+            subject: subject,
+            message: message,
+            date: new Date().toISOString().split('T')[0]
+        };
+
+        try {
+            const res = await fetch('/api/submit-issue', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                alert("✅ Complaint submitted successfully!");
+                // Clear the form fields
+                document.getElementById('subject').value = "";
+                document.getElementById('desc').value = "";
+            } else {
+                const errorText = await res.json();
+                alert("❌ Server Error: " + errorText.error);
+            }
+        } catch (err) {
+            alert("❌ Connection failed. Ensure node server.js is running.");
+        }
+    }
+</script>

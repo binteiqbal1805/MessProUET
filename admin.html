@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessPro Admin - Dashboard</title>
+    <link rel="stylesheet" href="style3.css"> 
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <nav class="admin-nav">
+        <div class="logo" style="color: var(--cyan); font-weight: 800; font-size: 1.5rem;">
+            MessPro Admin
+        </div>
+        
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="admin.html" class="active">Dashboard</a>
+            <a href="users.html">User Management</a>
+            <a href="inventory.html">Inventory</a>
+        </div>
+
+        <button class="logout-btn" onclick="adminLogout()">Admin Logout</button>
+    </nav>
+
+
+<main class="content-container">
+    <div class="summary-grid">
+        <div class="admin-card">
+            <div class="label">Total Students</div>
+            <div id="totalStudents" class="value cyan-text">...</div>
+        </div>
+        <div class="admin-card">
+            <div class="label">Meals Served (Today)</div>
+            <div id="mealsToday" class="value cyan-text">...</div>
+        </div>
+        <div class="admin-card">
+            <div class="label">Pending Complaints</div>
+            <div id="pendingComplaints" class="value red-text">...</div>
+        </div>
+        <div class="admin-card">
+            <div class="label">Monthly Revenue</div>
+            <div id="revenue" class="value cyan-text">₹ 0</div>
+        </div>
+    </div>
+
+    <section class="activity-section">
+        <h2 class="section-title">Recent Student Activity</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Last Action</th>
+                </tr>
+            </thead>
+            <tbody id="activityBody">
+                </tbody>
+        </table>
+    </section>
+</main>
+
+<script>
+    window.onload = async () => {
+        try {
+            // 1. Fetch Dashboard Stats
+            const statsRes = await fetch('/api/admin/stats');
+            const stats = await statsRes.json();
+            
+            document.getElementById('totalStudents').innerText = stats.totalStudents;
+            document.getElementById('mealsToday').innerText = stats.mealsToday;
+            document.getElementById('pendingComplaints').innerText = stats.complaints;
+            document.getElementById('revenue').innerText = `₹ ${(stats.mealsMonth * 30) / 1000}k`;
+
+            // 2. Fetch Recent Activity
+            const activityRes = await fetch('/api/admin/activity');
+            const activity = await activityRes.json();
+            const body = document.getElementById('activityBody');
+            
+            body.innerHTML = activity.map(row => `
+                <tr>
+                    <td>#${row.username}</td>
+                    <td>Student User</td>
+                    <td>${row.date}</td>
+                    <td>Marked Attendance</td>
+                </tr>
+            `).join('');
+        } catch (err) {
+            console.error("Dashboard failed to load:", err);
+        }
+    };
+
+    function adminLogout() {
+        window.location.href = "login.html";
+    }
+</script>
+</body>
+</html>    
+
