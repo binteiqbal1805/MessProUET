@@ -148,3 +148,13 @@ app.get('/api/admin/users', (req, res) => {
     });
 });
 app.listen(3000, () => console.log("🚀 Server running at http://localhost:3000"));
+
+const path = require('path');
+
+// 1. Tell Express where your HTML/CSS files are
+app.use(express.static(path.join(__dirname)));
+
+// 2. Tell Express to show your login page at the root URL (/)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html')); 
+});
