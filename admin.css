@@ -71,3 +71,8 @@ body { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-s
     font-weight: 600;
     cursor: pointer;
 }
+.nav-links {
+    list-style: none; /* Removes the dots */
+    display: flex;
+    gap: 20px;
+}
