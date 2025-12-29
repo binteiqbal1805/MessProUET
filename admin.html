@@ -21,6 +21,7 @@
         </div>
 
         <button class="logout-btn" onclick="adminLogout()">Admin Logout</button>
+        
     </nav>
 
 
@@ -94,6 +95,42 @@
     function adminLogout() {
         window.location.href = "login.html";
     }
+    function adminLogout() {
+    // 1. Clear any stored login data (like a token or username)
+    localStorage.removeItem('isAdminLoggedIn');
+    sessionStorage.clear();
+
+    // 2. Alert the user (optional)
+    alert("You have been logged out.");
+
+    // 3. Redirect to the login page
+    window.location.href = 'login.html';
+}
+window.onload = async () => {
+    try {
+        const response = await fetch('/api/admin/activity');
+        if (!response.ok) throw new Error("Server Pantry Empty");
+        
+        const data = await response.json();
+        const tableBody = document.querySelector('.activity-table-body');
+        
+        // Use forEach instead of map for a cleaner table build
+        tableBody.innerHTML = ''; 
+        data.forEach(student => {
+            const row = `<tr>
+                <td>${student.student_id}</td>
+                <td>${student.name}</td>
+                <td>${student.date}</td>
+                <td><span class="fresh-badge">${student.last_action || 'Marked Attendance'}</span></td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+    } catch (error) {
+        console.error("Dashboard failed to load:", error);
+        document.querySelector('.activity-table-body').innerHTML = '<tr><td colspan="4">No data found in SQLite pantry.</td></tr>';
+    }
+};
+
 </script>
 </body>
 </html>    

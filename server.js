@@ -147,6 +147,65 @@ app.get('/api/admin/users', (req, res) => {
         res.json(rows); // This sends the data to your table
     });
 });
+// This is the API (The Waiter)
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    // The Chef checks the SQLite Pantry
+    db.get("SELECT * FROM users WHERE username = ? AND password = ?", [username, password], (err, row) => {
+        if (row) {
+            // Login success!
+            res.json({ success: true, message: "Welcome back!" });
+        } else {
+            // Wrong password - No entry!
+            res.status(401).json({ success: false, message: "Invalid credentials" });
+        }
+    });
+});
+app.get('/api/weekly-attendance', (req, res) => {
+    const username = req.query.username; // Get the specific student's name
+    
+    // SQL query to get data from the last 7 days
+    const sql = `SELECT date, meal_type FROM attendance 
+                 WHERE username = ? 
+                 AND date >= date('now', '-7 days')
+                 ORDER BY date DESC`;
+
+    db.all(sql, [username], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json(rows); // Send the list back to the frontend
+    });
+});
+app.get('/api/attendance-stats', (req, res) => {
+    const username = req.query.username; // Identification from localStorage
+    
+    // SQL query to count specific meal types
+    const sql = `SELECT 
+        COUNT(CASE WHEN meal_type = 'Breakfast' THEN 1 END) as breakfasts,
+        COUNT(CASE WHEN meal_type = 'Lunch' THEN 1 END) as lunches,
+        COUNT(CASE WHEN meal_type = 'Dinner' THEN 1 END) as dinners,
+        COUNT(*) as total 
+        FROM attendance WHERE username = ?`;
+
+    db.get(sql, [username], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(row); // Sends the 7, 8, 7 counts back
+    });
+});
+// This route gets the 5 most recent attendance marks
+app.get('/api/recent-activity', (req, res) => {
+    const sql = `SELECT student_id, name, date, meal_type as last_action 
+                 FROM attendance 
+                 ORDER BY date DESC LIMIT 5`;
+
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows); // Send the data to the dashboard
+    });
+});
 app.listen(3000, () => console.log("🚀 Server running at http://localhost:3000"));
 
 

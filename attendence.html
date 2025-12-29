@@ -24,7 +24,7 @@
                 <li><a href="admin.html">Admin</a></li>
             </ul>
         </nav>
-        <button class="login-btn active-login">Login</button>
+        
     </header>
 
 <main class="content-container">
@@ -32,24 +32,7 @@
         <h1 class="page-title">Daily Attendance</h1>
         <p class="page-subtitle">Track your meal attendance and manage your mess presence</p>
         
-        <div class="summary-cards">
-            <div class="card">
-                <div class="count orange-text">7</div>
-                <div class="label">Breakfasts</div>
-            </div>
-            <div class="card">
-                <div class="count orange-text">8</div>
-                <div class="label">Lunches</div>
-            </div>
-            <div class="card">
-                <div class="count orange-text">7</div>
-                <div class="label">Dinners</div>
-            </div>
-            <div class="card total-card">
-                <div class="count white-text">22</div>
-                <div class="label">Total Meals</div>
-            </div>
-        </div>
+        
     </section>
 
     <section class="mark-attendance-component">
@@ -101,6 +84,37 @@
             <tbody id="attendanceHistoryBody"></tbody>
         </table>
     </div>
+    <div class="weekly-history">
+    <h3>My Attendance (Last 7 Days)</h3>
+    <table id="attendanceTable">
+        <thead>
+            <tr style="background-color: var(--primary-orange); color: white;">
+                <th>Date</th>
+                <th>Meal Type</th>
+            </tr>
+        </thead>
+        <tbody id="attendanceBody">
+            </tbody>
+    </table>
+</div>
+<div class="stats-container">
+    <div class="stat-card">
+        <h2 id="count-breakfast">0</h2>
+        <p>Breakfasts</p>
+    </div>
+    <div class="stat-card">
+        <h2 id="count-lunch">0</h2>
+        <p>Lunches</p>
+    </div>
+    <div class="stat-card">
+        <h2 id="count-dinner">0</h2>
+        <p>Dinners</p>
+    </div>
+    <div class="stat-card total-card">
+        <h2 id="count-total">0</h2>
+        <p>Total Meals</p>
+    </div>
+</div>
 </main>
 
 <script>
@@ -156,6 +170,49 @@
             </tr>
         `).join('');
     }
+    async function loadWeeklyAttendance() {
+    const user = localStorage.getItem('loggedUser'); // Remember the student
+    const response = await fetch(`/api/weekly-attendance?username=${user}`);
+    const data = await response.json();
+
+    const tableBody = document.getElementById('attendanceBody');
+    tableBody.innerHTML = ''; // Clear old rows
+
+    data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${row.date}</td>
+            <td><span class="fresh-badge">${row.meal_type}</span></td>
+        `;
+        tableBody.appendChild(tr);
+    });
+}
+
+// Run this when the page opens
+window.onload = loadWeeklyAttendance;
+async function updateAttendanceCards() {
+    const user = localStorage.getItem('loggedUser'); // The 'Remember' logic
+    const response = await fetch(`/api/attendance-stats?username=${user}`);
+    const stats = await response.json();
+
+    // Update the numbers in the cards
+    document.getElementById('count-breakfast').innerText = stats.breakfasts;
+    document.getElementById('count-lunch').innerText = stats.lunches;
+    document.getElementById('count-dinner').innerText = stats.dinners;
+    document.getElementById('count-total').innerText = stats.total;
+}
+
+// Automatically update when the page loads
+window.onload = updateAttendanceCards;
+
+</script>
+<script>
+    // If the browser doesn't "remember" a login, kick them back to the login page
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
+        alert("Please login first!");
+        window.location.href = 'login.html';
+    }
+
 </script>
 </body>
 </html>

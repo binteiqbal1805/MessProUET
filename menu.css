@@ -77,11 +77,11 @@
 }
 
 .lunch-dot {
-    background-color: #ff8c00; /* Orange (Primary color) */
+    background-color: #e78815; /* Orange (Primary color) */
 }
 
 .dinner-dot {
-    background-color: #33a7e4; /* Blue */
+    background-color: #51a9d9; /* Blue */
 }
 
 /* General Menu Note/Download Button */
@@ -104,7 +104,7 @@
 }
 
 .download-btn:hover {
-    background-color: #008c9e;
+    background-color: #05515c;
     transition: 0.3s;
 }
 /* --- Meal Timings Section Styles --- */
