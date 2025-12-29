@@ -9,7 +9,7 @@
     --primary-orange: rgb(14, 160, 163); /* Main accent color */
     --accent-orange-light: #ffb74d; /* For the orange text in cards */
     --gradient-orange-start: #ffae42;
-    --gradient-orange-end: #ff8c00;
+    --gradient-orange-end: #eae60b;
     --check-present: #4caf50; /* Green checkmark */
     --check-absent: #f44336; /* Red X mark */
     --shadow-color: rgba(0, 0, 0, 0.5);
@@ -33,7 +33,7 @@ body {
 }
 
 a {
-    color: inherit;
+    color: #eae60b;
     text-decoration: none;
 }
 
@@ -143,7 +143,7 @@ a {
 }
 
 .orange-text {
-    color: var(--accent-orange-light);
+    color:#eae60b;
 }
 
 .white-text {
@@ -151,9 +151,9 @@ a {
 }
 
 .total-card {
-    background-color: var(--primary-orange);
+    background-color: rgb(5, 117, 64) ;
     color: var(--text-white);
-    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+    box-shadow: 0 4px 10px rgb(5, 117, 64);
 }
 
 /* === 3. Mark Today's Attendance Component === */
@@ -213,7 +213,7 @@ a {
     width: 20px;
     height: 20px;
     border: 2px solid var(--text-light-grey);
-    background-color: #383838; /* Slightly lighter background inside checkbox */
+    background-color:  rgb(5, 117, 64); /* Slightly lighter background inside checkbox */
     border-radius: 4px;
     display: block;
     margin-bottom: 10px;
@@ -221,8 +221,8 @@ a {
 }
 
 .meal-card input[type="checkbox"]:checked + .custom-checkbox {
-    background-color: var(--primary-orange);
-    border-color: var(--primary-orange);
+    background-color:  rgb(5, 117, 64);
+    border-color:  rgb(5, 117, 64);
 }
 
 .meal-card .time-range {
@@ -234,7 +234,7 @@ a {
 
 .submit-btn {
     width: 100%;
-    background: #ff9800;
+    background:  rgb(5, 117, 64);
     color: #000;
     border: none;
     padding: 18px;
@@ -245,7 +245,7 @@ a {
     transition: transform 0.2s; 
 }
 .submit-btn:hover {
-    background: #e68a00;
+    background:  #eae60b;
     transform: scale(1.01);
 }
 
@@ -344,7 +344,7 @@ a {
     height: 25px;
     width: 25px;
     background-color: #333; /* Dark background to match your cards */
-    border: 2px solid #ff9800; /* Orange border */
+    border: 2px #eae60b; /* Orange border */
     border-radius: 4px;
 }
 
@@ -355,7 +355,7 @@ a {
 
 /* When the checkbox is checked, add an orange background */
 .checkbox-container input:checked ~ .checkmark {
-    background-color: #ff9800;
+    background-color: #eae60b;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
@@ -433,12 +433,12 @@ a {
 
 /* SELECTED STATE: When checkbox is checked, style the sibling .card-content */
 .meal-card input:checked + .card-content {
-    border-color: #ff9800;
+    border-color: #eae60b;
     background: #332a1e;
     box-shadow: 0 0 20px rgba(255, 152, 0, 0.2);
     transform: translateY(-5px);
 }
 
 .meal-card input:checked + .card-content span {
-    color: #ff9800;
+    color: #eae60b;
 }

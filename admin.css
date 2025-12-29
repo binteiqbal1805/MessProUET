@@ -1,7 +1,7 @@
 :root {
     --bg-dark: #050a12;
     --card-bg: #0c1421;
-    --cyan: #00d2ff;
+    --cyan: rgb(5, 117, 64);
     --red: #ff4d4d;
     --text-grey: #8a94a1;
 }
@@ -75,4 +75,24 @@ body { background: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-s
     list-style: none; /* Removes the dots */
     display: flex;
     gap: 20px;
+}
+/* Freshness Badge Styling */
+.fresh-badge {
+    display: inline-block;
+    background-color: var(--accent-green); /* Forest Green [#228B22] */
+    color: var(--text-light); /* White text */
+    padding: 4px 12px;
+    border-radius: 20px; /* Rounded pill shape */
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Subtle pulse animation to draw attention */
+.fresh-badge:hover {
+    transform: scale(1.05);
+    transition: 0.2s ease-in-out;
 }

@@ -1,10 +1,10 @@
 /* --- Variables & Global Reset --- */
 :root {
-    --primary-color:#06B6D4; /* Bright Orange */
+    --primary-color:#eae60b; /* Bright Orange */
     --secondary-color:gray;  /* Dark Gray/Black for contrast buttons */
     --text-light: #fff;
     --text-dark: #333;
-    --bg-dark:#0F172A; /* Dark background color from MessPro design */
+    --bg-dark:#060e1d; /* Dark background color from MessPro design */
     --card-bg: #292929; /* Slightly lighter dark background for cards */
     --padding-section: 60px;
 }

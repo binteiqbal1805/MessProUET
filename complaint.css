@@ -1,4 +1,4 @@
-:root { --bg: #050a12; --card: #0c1421; --cyan: #00d2ff; --orange: #ff9800; }
+:root { --bg: #050a12; --card: #0c1421; --cyan: rgb(5, 117, 64); --orange: #eae60b; }
 body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; }
 .content-container { max-width: 700px; margin: 50px auto; padding: 0 20px; }
 .page-title { font-size: 2rem; }

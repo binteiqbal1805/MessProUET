@@ -1,8 +1,8 @@
 :root {
     --bg-dark: #050a12;
     --card-bg: #0c1421;
-    --cyan: #00d2ff;
-    --orange: #ff9800;
+    --cyan: rgb(5, 117, 64);
+    --orange: #eae60b;
     --text-grey: #8a94a1;
 }
 
