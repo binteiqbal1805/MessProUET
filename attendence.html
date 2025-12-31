@@ -83,20 +83,20 @@
             </thead>
             <tbody id="attendanceHistoryBody"></tbody>
         </table>
-    </div>
     <div class="weekly-history">
     <h3>My Attendance (Last 7 Days)</h3>
     <table id="attendanceTable">
         <thead>
-            <tr style="background-color: var(--primary-orange); color: white;">
+            <tr style="background-color: #ff4500; color: white;">
                 <th>Date</th>
                 <th>Meal Type</th>
             </tr>
         </thead>
-        <tbody id="attendanceBody">
+        <tbody id="attendanceHistoryBody">
             </tbody>
     </table>
 </div>
+
 <div class="stats-container">
     <div class="stat-card">
         <h2 id="count-breakfast">0</h2>
@@ -129,31 +129,29 @@ if (!currentUser || loginStatus !== 'true') {
 
 // 2. MARK ATTENDANCE FUNCTION
 async function submitAttendance() {
+    const currentUser = localStorage.getItem('loggedUser'); //
+    
+    // Check which meal is selected
+    const meal = document.querySelector('input[name="meal"]:checked')?.value;
+
     const attendanceData = {
-        username: currentUser,
+        username: currentUser, // Matches the 'username' column in SQLite
         date: new Date().toISOString().split('T')[0],
-        breakfast: document.getElementById('breakfast').checked ? 1 : 0,
-        lunch: document.getElementById('lunch').checked ? 1 : 0,
-        dinner: document.getElementById('dinner').checked ? 1 : 0
+        meal_type: meal // Send the specific meal type string
     };
 
-    try {
-        const response = await fetch('/api/attendance', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(attendanceData)
-        });
+    const response = await fetch('/api/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(attendanceData)
+    });
 
-        if (response.ok) {
-            alert("Attendance Saved Successfully!");
-            loadHistory(); // Refresh the table
-        } else {
-            alert("Server Error: Check your database connection.");
-        }
-    } catch (err) {
-        alert("Connection Error. Is your server running?");
+    if (response.ok) {
+        alert("Attendance Marked!");
+        location.reload(); // Refresh to update cards and table
     }
 }
+
 
 // 3. LOAD HISTORY FUNCTION
 async function loadHistory() {
