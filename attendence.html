@@ -130,15 +130,15 @@ if (!currentUser || loginStatus !== 'true') {
 }
 
 async function submitAttendance() {
-    const user = localStorage.getItem('loggedUser'); // Get the saved username
-    const mealInput = document.querySelector('input[name="meal"]:checked');
-
+    const user = localStorage.getItem('loggedUser');
     
-
+    // Capture the 1 (checked) or 0 (unchecked) for each meal
     const attendanceData = {
-        username: user, // This MUST match your database column name
+        username: user,
         date: new Date().toISOString().split('T')[0],
-        meal_type: mealInput.value
+        breakfast: document.getElementById('breakfast').checked ? 1 : 0,
+        lunch: document.getElementById('lunch').checked ? 1 : 0,
+        dinner: document.getElementById('dinner').checked ? 1 : 0
     };
 
     try {
@@ -149,15 +149,16 @@ async function submitAttendance() {
         });
 
         if (response.ok) {
-            alert("Attendance Saved!");
-            location.reload(); // Refresh to show the data in the table
+            alert("Attendance Marked for " + user + "!");
+            loadHistory(); // Refresh the table below
+        } else {
+            const errorData = await response.json();
+            alert("Error: " + errorData.error);
         }
     } catch (err) {
-        console.error("Save failed:", err);
+        alert("Server is not responding. Check your Render logs.");
     }
 }
-
-
 
 async function loadHistory() {
     try {
@@ -182,6 +183,7 @@ async function loadHistory() {
 }
 
 window.onload = loadHistory;
+
 </script>
 </body>
 </html>
