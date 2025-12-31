@@ -117,101 +117,69 @@
 </div>
 </main>
 
-<script>
-    // CRITICAL: Get user from login
-    const loggedInUser = localStorage.getItem('loggedUser');
+    <script>
+// 1. SECURITY CHECK: Must match the key 'loggedUser' from login.html
+const currentUser = localStorage.getItem('loggedUser'); 
+const loginStatus = localStorage.getItem('isLoggedIn');
 
-    async function submitAttendance() {
-        if (!loggedInUser) {
-            alert("Please login first!");
-            window.location.href = "login.html";
-            return;
+if (!currentUser || loginStatus !== 'true') {
+    alert("Please login first!"); //
+    window.location.href = "login.html";
+}
+
+// 2. MARK ATTENDANCE FUNCTION
+async function submitAttendance() {
+    const attendanceData = {
+        username: currentUser,
+        date: new Date().toISOString().split('T')[0],
+        breakfast: document.getElementById('breakfast').checked ? 1 : 0,
+        lunch: document.getElementById('lunch').checked ? 1 : 0,
+        dinner: document.getElementById('dinner').checked ? 1 : 0
+    };
+
+    try {
+        const response = await fetch('/api/attendance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(attendanceData)
+        });
+
+        if (response.ok) {
+            alert("Attendance Saved Successfully!");
+            loadHistory(); // Refresh the table
+        } else {
+            alert("Server Error: Check your database connection.");
         }
-
-        const attendanceData = {
-            username: loggedInUser,
-            date: new Date().toISOString().split('T')[0],
-            breakfast: document.getElementById('breakfast').checked ? 1 : 0,
-            lunch: document.getElementById('lunch').checked ? 1 : 0,
-            dinner: document.getElementById('dinner').checked ? 1 : 0
-        };
-
-        try {
-            const response = await fetch('/api/attendance', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(attendanceData)
-            });
-
-            if (response.ok) {
-                alert("Attendance Saved Successfully!");
-                document.getElementById('history-container').style.display = 'block';
-                loadHistory();
-            } else {
-                // If you see this, check your VS Code terminal
-                alert("Server rejected the request. Check terminal for error.");
-            }
-        } catch (err) {
-            alert("Connection Error. Is 'node server.js' running?");
-        }
+    } catch (err) {
+        alert("Connection Error. Is your server running?");
     }
+}
 
-    async function loadHistory() {
-        const res = await fetch(`/api/attendance-history/${loggedInUser}`);
+// 3. LOAD HISTORY FUNCTION
+async function loadHistory() {
+    try {
+        const res = await fetch(`/api/attendance-history/${currentUser}`);
         const data = await res.json();
         const historyBody = document.getElementById('attendanceHistoryBody');
-        
-        historyBody.innerHTML = data.map(row => `
-            <tr>
-                <td>${row.date}</td>
-                <td>${row.breakfast ? '✅' : '❌'}</td>
-                <td>${row.lunch ? '✅' : '❌'}</td>
-                <td>${row.dinner ? '✅' : '❌'}</td>
-            </tr>
-        `).join('');
+
+        if (historyBody) {
+            historyBody.innerHTML = data.map(row => `
+                <tr>
+                    <td>${row.date}</td>
+                    <td>${row.breakfast ? '✅' : '❌'}</td>
+                    <td>${row.lunch ? '✅' : '❌'}</td>
+                    <td>${row.dinner ? '✅' : '❌'}</td>
+                </tr>
+            `).join('');
+        }
+    } catch (err) {
+        console.error("Failed to load history data.");
     }
-    async function loadWeeklyAttendance() {
-    const user = localStorage.getItem('loggedUser'); // Remember the student
-    const response = await fetch(`/api/weekly-attendance?username=${user}`);
-    const data = await response.json();
-
-    const tableBody = document.getElementById('attendanceBody');
-    tableBody.innerHTML = ''; // Clear old rows
-
-    data.forEach(row => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${row.date}</td>
-            <td><span class="fresh-badge">${row.meal_type}</span></td>
-        `;
-        tableBody.appendChild(tr);
-    });
 }
 
-// Run this when the page opens
-window.onload = loadWeeklyAttendance;
-async function updateAttendanceCards() {
-    const user = localStorage.getItem('loggedUser'); // The 'Remember' logic
-    const response = await fetch(`/api/attendance-stats?username=${user}`);
-    const stats = await response.json();
-
-    // Update the numbers in the cards
-    document.getElementById('count-breakfast').innerText = stats.breakfasts;
-    document.getElementById('count-lunch').innerText = stats.lunches;
-    document.getElementById('count-dinner').innerText = stats.dinners;
-    document.getElementById('count-total').innerText = stats.total;
-}
-
-// Automatically update when the page loads
-window.onload = updateAttendanceCards;
-
+// Run history when page opens
+window.onload = loadHistory;
 </script>
-<script>
-    // If the browser doesn't "remember" a login, kick them back to the login page
-    if (localStorage.getItem('isLoggedIn') !== 'true') {
-        alert("Please login first!");
-        window.location.href = 'login.html';
-    }
 
 </script>
 </body>

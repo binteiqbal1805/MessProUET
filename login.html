@@ -98,54 +98,37 @@
     </footer>
     
     <script>
-    const loginBtn = document.querySelector('.login-submit-btn'); // Matches your CSS class
+const loginBtn = document.querySelector('.login-submit-btn');
 
-    loginBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        
-        const username = document.querySelector('input[name="username"]').value;
-        const password = document.querySelector('input[name="password"]').value;
+loginBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
 
-        try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
+    const username = document.querySelector('input[name="username"]').value;
+    const password = document.querySelector('input[name="password"]').value;
 
-            const result = await response.json();
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
 
-            if (response.ok) {
-                // Save the session locally
-                localStorage.setItem('loggedUser', username); 
-                alert("✅ " + (result.message || "Login successful!"));
-                window.location.href = "attendence.html"; // Redirect straight to attendance
-            } else {
-                // Shows the "Incorrect password" alert if password doesn't match
-                alert("❌ " + (result.error || "Invalid credentials"));
-            }
-        } catch (error) {
-            alert("❌ Connection failed. Ensure terminal shows 'Server running'.");
+        const result = await response.json();
+
+        if (response.ok) {
+            // SUCCESS: We set the "Secret Keys" in the browser memory
+            localStorage.setItem('loggedUser', username); //
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            alert("✅ Login successful! Redirecting...");
+            window.location.href = "attendence.html"; 
+        } else {
+            alert("❌ " + (result.error || "Invalid credentials"));
         }
-        localStorage.setItem('loggedUser', username);
-    });
-    async function handleLogin() {
-    const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: userVal, password: passVal })
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-        // "Remember" the student in the browser's memory
-        localStorage.setItem('isLoggedIn', 'true');
-        window.location.href = 'attendance.html';
-    } else {
-        alert("❌ Wrong credentials! You cannot enter.");
+    } catch (error) {
+        alert("❌ Connection failed. Ensure your Render server is live.");
     }
-}
+});
 </script>
 
 
