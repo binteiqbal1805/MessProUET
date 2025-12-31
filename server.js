@@ -48,11 +48,13 @@ app.post('/api/login', (req, res) => {
 });
 
 // 3. Attendance POST Route
+// Change all SQL queries to use 'attendance' (lowercase)
 app.post('/api/attendance', (req, res) => {
     const { username, date, breakfast, lunch, dinner } = req.body;
-    db.run("INSERT INTO attendance VALUES (?, ?, ?, ?, ?)", [username, date, breakfast, lunch, dinner], (err) => {
-        if (err) return res.status(500).json({ error: "Failed to save" });
-        res.status(200).json({ message: "Attendance saved!" });
+    const sql = `INSERT INTO attendance (username, date, breakfast, lunch, dinner) VALUES (?, ?, ?, ?, ?)`;
+    db.run(sql, [username, date, breakfast, lunch, dinner], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Attendance saved!" });
     });
 });
 

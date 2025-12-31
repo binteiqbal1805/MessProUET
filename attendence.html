@@ -85,11 +85,13 @@
         </table>
     <div class="weekly-history">
     <h3>My Attendance (Last 7 Days)</h3>
-    <table id="attendanceTable">
+    <table class="attendance-table">
         <thead>
-            <tr style="background-color: #ff4500; color: white;">
+            <tr>
                 <th>Date</th>
-                <th>Meal Type</th>
+                <th>Breakfast</th>
+                <th>Lunch</th>
+                <th>Dinner</th>
             </tr>
         </thead>
         <tbody id="attendanceHistoryBody">
@@ -127,58 +129,62 @@ if (!currentUser || loginStatus !== 'true') {
     window.location.href = "login.html";
 }
 
-// 2. MARK ATTENDANCE FUNCTION
 async function submitAttendance() {
-    const currentUser = localStorage.getItem('loggedUser'); //
-    
-    // Check which meal is selected
-    const meal = document.querySelector('input[name="meal"]:checked')?.value;
+    const user = localStorage.getItem('loggedUser'); // Get the saved username
+    const mealInput = document.querySelector('input[name="meal"]:checked');
+
+    if (!mealInput) {
+        alert("Please select a meal first!");
+        return;
+    }
 
     const attendanceData = {
-        username: currentUser, // Matches the 'username' column in SQLite
+        username: user, // This MUST match your database column name
         date: new Date().toISOString().split('T')[0],
-        meal_type: meal // Send the specific meal type string
+        meal_type: mealInput.value
     };
 
-    const response = await fetch('/api/attendance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(attendanceData)
-    });
+    try {
+        const response = await fetch('/api/attendance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(attendanceData)
+        });
 
-    if (response.ok) {
-        alert("Attendance Marked!");
-        location.reload(); // Refresh to update cards and table
+        if (response.ok) {
+            alert("Attendance Saved!");
+            location.reload(); // Refresh to show the data in the table
+        }
+    } catch (err) {
+        console.error("Save failed:", err);
     }
 }
 
 
-// 3. LOAD HISTORY FUNCTION
+
 async function loadHistory() {
     try {
         const res = await fetch(`/api/attendance-history/${currentUser}`);
         const data = await res.json();
         const historyBody = document.getElementById('attendanceHistoryBody');
+        
+        if (!historyBody) return;
 
-        if (historyBody) {
-            historyBody.innerHTML = data.map(row => `
-                <tr>
-                    <td>${row.date}</td>
-                    <td>${row.breakfast ? '✅' : '❌'}</td>
-                    <td>${row.lunch ? '✅' : '❌'}</td>
-                    <td>${row.dinner ? '✅' : '❌'}</td>
-                </tr>
-            `).join('');
-        }
+        // This restores your original table format
+        historyBody.innerHTML = data.map(row => `
+            <tr>
+                <td>${row.date}</td>
+                <td>${row.breakfast ? '✅' : '❌'}</td>
+                <td>${row.lunch ? '✅' : '❌'}</td>
+                <td>${row.dinner ? '✅' : '❌'}</td>
+            </tr>
+        `).join('');
     } catch (err) {
-        console.error("Failed to load history data.");
+        console.error("Failed to load history:", err);
     }
 }
 
-// Run history when page opens
 window.onload = loadHistory;
-</script>
-
 </script>
 </body>
 </html>
