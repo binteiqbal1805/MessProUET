@@ -133,10 +133,7 @@ async function submitAttendance() {
     const user = localStorage.getItem('loggedUser'); // Get the saved username
     const mealInput = document.querySelector('input[name="meal"]:checked');
 
-    if (!mealInput) {
-        alert("Please select a meal first!");
-        return;
-    }
+    
 
     const attendanceData = {
         username: user, // This MUST match your database column name
