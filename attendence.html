@@ -1,189 +1,156 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MessPro - Attendance</title>
+    <title>MessPro - My Attendance</title>
     <link rel="stylesheet" href="style3.css">
-    <link rel="stylesheet" href="attendence.css"> 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> </head>
+    <link rel="stylesheet" href="attendence.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .container { max-width: 900px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .attendance-form { display: flex; justify-content: space-around; background: #fff5f0; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #ff4500; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; font-weight: bold; color: #333; }
+        .submit-btn { background: #ff4500; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-size: 1rem; transition: 0.3s; }
+        .submit-btn:hover { background: #e63e00; transform: translateY(-2px); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; overflow: hidden; border-radius: 8px; }
+        th { background-color: #ff4500; color: white; padding: 15px; text-align: center; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; }
+        tr:hover { background-color: #fff9f6; }
+        .status-icon { font-size: 1.2rem; }
+    </style>
+</head>
 <body>
-<header class="navbar">
-        <div class="logo">
-            <i class="fas fa-utensils"></i> MessPro
-        </div>
+
+    <header class="navbar">
+        <div class="logo"><i class="fas fa-utensils"></i> MessPro</div>
         <nav>
             <ul>
                 <li><a href="index.html">Home</a></li>
-                <li><a href="menu.html">Menu</a></li>
-                <li><a href="login.html" >Login</a></li>
-                <li><a href="attendence.html" class="active">Attendence</a></li>
-                <li><a href="bill.html">Bill</a></li>
-                <li><a href="feedback.html">Feedback</a></li>
-                <li><a href="complaint.html">Complaint</a></li>
-                <li><a href="admin.html">Admin</a></li>
+                <li><a href="attendence.html" class="active">Attendance</a></li>
+                <li><a href="login.html" onclick="logout()">Logout</a></li>
             </ul>
         </nav>
-        
     </header>
 
-<main class="content-container">
-    <section class="daily-attendance-summary">
-        <h1 class="page-title">Daily Attendance</h1>
-        <p class="page-subtitle">Track your meal attendance and manage your mess presence</p>
-        
-        
-    </section>
+    <div class="container">
+        <h2><i class="fas fa-calendar-check"></i> Welcome, <span id="user-display">Student</span></h2>
+        <p>Select the meals you consumed today and click submit.</p>
 
-    <section class="mark-attendance-component">
-        <div class="attendance-box">
-            <h2>Mark Today's Attendance</h2>
-            <div class="meal-options">
-                <label class="meal-card">
-                    <input type="checkbox" id="breakfast">
-                    <div class="card-content">
-                        <div class="icon">🍳</div>
-                        <span>Breakfast</span>
-                        <small>7:00 - 9:00 AM</small>
-                    </div>
-                </label>
-
-                <label class="meal-card">
-                    <input type="checkbox" id="lunch">
-                    <div class="card-content">
-                        <div class="icon">🍲</div>
-                        <span>Lunch</span>
-                        <small>12:30 - 2:30 PM</small>
-                    </div>
-                </label>
-
-                <label class="meal-card">
-                    <input type="checkbox" id="dinner">
-                    <div class="card-content">
-                        <div class="icon">🍽️</div>
-                        <span>Dinner</span>
-                        <small>7:30 - 9:30 PM</small>
-                    </div>
-                </label>
+        <div class="attendance-form">
+            <div class="checkbox-group">
+                <input type="checkbox" id="breakfast" style="width:20px; height:20px;">
+                <label for="breakfast">Breakfast</label>
             </div>
-            <button class="submit-btn" onclick="submitAttendance()">Submit Attendance</button>
+            <div class="checkbox-group">
+                <input type="checkbox" id="lunch" style="width:20px; height:20px;">
+                <label for="lunch">Lunch</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="dinner" style="width:20px; height:20px;">
+                <label for="dinner">Dinner</label>
+            </div>
+            <button class="submit-btn" onclick="submitAttendance()">Submit Today's Meal</button>
         </div>
-    </section>
 
-    <div id="history-container" style="display: none; margin-top: 30px;">
-        <h3 style="color: #ff9800; margin-bottom: 15px;">Your Attendance History</h3>
-        <table class="attendance-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Breakfast</th>
-                    <th>Lunch</th>
-                    <th>Dinner</th>
-                </tr>
-            </thead>
-            <tbody id="attendanceHistoryBody"></tbody>
-        </table>
-    <div class="weekly-history">
-    <h3>My Attendance (Last 7 Days)</h3>
-    <table class="attendance-table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Breakfast</th>
-                <th>Lunch</th>
-                <th>Dinner</th>
-            </tr>
-        </thead>
-        <tbody id="attendanceHistoryBody">
-            </tbody>
-    </table>
-</div>
-
-<div class="stats-container">
-    <div class="stat-card">
-        <h2 id="count-breakfast">0</h2>
-        <p>Breakfasts</p>
+        <div class="history-section">
+            <h3><i class="fas fa-history"></i> My Attendance History (Last 7 Days)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Breakfast</th>
+                        <th>Lunch</th>
+                        <th>Dinner</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceHistoryBody">
+                    </tbody>
+            </table>
+        </div>
     </div>
-    <div class="stat-card">
-        <h2 id="count-lunch">0</h2>
-        <p>Lunches</p>
-    </div>
-    <div class="stat-card">
-        <h2 id="count-dinner">0</h2>
-        <p>Dinners</p>
-    </div>
-    <div class="stat-card total-card">
-        <h2 id="count-total">0</h2>
-        <p>Total Meals</p>
-    </div>
-</div>
-</main>
 
     <script>
-// 1. SECURITY CHECK: Must match the key 'loggedUser' from login.html
-const currentUser = localStorage.getItem('loggedUser'); 
-const loginStatus = localStorage.getItem('isLoggedIn');
+        // Check if user is logged in
+        const currentUser = localStorage.getItem('loggedUser');
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
 
-if (!currentUser || loginStatus !== 'true') {
-    alert("Please login first!"); //
-    window.location.href = "login.html";
-}
-
-async function submitAttendance() {
-    const user = localStorage.getItem('loggedUser');
-    
-    // Capture the 1 (checked) or 0 (unchecked) for each meal
-    const attendanceData = {
-        username: user,
-        date: new Date().toISOString().split('T')[0],
-        breakfast: document.getElementById('breakfast').checked ? 1 : 0,
-        lunch: document.getElementById('lunch').checked ? 1 : 0,
-        dinner: document.getElementById('dinner').checked ? 1 : 0
-    };
-
-    try {
-        const response = await fetch('/api/attendance', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(attendanceData)
-        });
-
-        if (response.ok) {
-            alert("Attendance Marked for " + user + "!");
-            loadHistory(); // Refresh the table below
+        if (!isLoggedIn || !currentUser) {
+            window.location.href = "login.html";
         } else {
-            const errorData = await response.json();
-            alert("Error: " + errorData.error);
+            document.getElementById('user-display').innerText = currentUser;
         }
-    } catch (err) {
-        alert("Server is not responding. Check your Render logs.");
-    }
-}
 
-async function loadHistory() {
-    try {
-        const res = await fetch(`/api/attendance-history/${currentUser}`);
-        const data = await res.json();
-        const historyBody = document.getElementById('attendanceHistoryBody');
-        
-        if (!historyBody) return;
+        // LOAD TABLE DATA
+        async function loadHistory() {
+            try {
+                const response = await fetch(`/api/attendance-history/${currentUser}`);
+                const data = await response.json();
+                const tableBody = document.getElementById('attendanceHistoryBody');
+                
+                tableBody.innerHTML = ''; // Clear table
 
-        // This restores your original table format
-        historyBody.innerHTML = data.map(row => `
-            <tr>
-                <td>${row.date}</td>
-                <td>${row.breakfast ? '✅' : '❌'}</td>
-                <td>${row.lunch ? '✅' : '❌'}</td>
-                <td>${row.dinner ? '✅' : '❌'}</td>
-            </tr>
-        `).join('');
-    } catch (err) {
-        console.error("Failed to load history:", err);
-    }
-}
+                if (data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4">No records found for this week.</td></tr>';
+                    return;
+                }
 
-window.onload = loadHistory;
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${row.date}</td>
+                        <td class="status-icon">${row.breakfast ? '✅' : '❌'}</td>
+                        <td class="status-icon">${row.lunch ? '✅' : '❌'}</td>
+                        <td class="status-icon">${row.dinner ? '✅' : '❌'}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error("Error loading table:", err);
+            }
+        }
 
-</script>
+        // SUBMIT DATA
+        async function submitAttendance() {
+            const data = {
+                username: currentUser,
+                date: new Date().toISOString().split('T')[0],
+                breakfast: document.getElementById('breakfast').checked ? 1 : 0,
+                lunch: document.getElementById('lunch').checked ? 1 : 0,
+                dinner: document.getElementById('dinner').checked ? 1 : 0
+            };
+
+            try {
+                const response = await fetch('/api/attendance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert("✅ Attendance saved successfully!");
+                    // Uncheck boxes for next time
+                    document.getElementById('breakfast').checked = false;
+                    document.getElementById('lunch').checked = false;
+                    document.getElementById('dinner').checked = false;
+                    // REFRESH TABLE IMMEDIATELY
+                    loadHistory();
+                } else {
+                    alert("❌ Error saving data. Try again.");
+                }
+            } catch (error) {
+                alert("❌ Server connection error.");
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+
+        // Run when page opens
+        window.onload = loadHistory;
+    </script>
 </body>
 </html>
