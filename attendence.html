@@ -8,17 +8,107 @@
     <link rel="stylesheet" href="attendence.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        .container { max-width: 900px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .attendance-form { display: flex; justify-content: space-around; background: #fff5f0; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #ff4500; }
-        .checkbox-group { display: flex; align-items: center; gap: 10px; font-weight: bold; color: #333; }
-        .submit-btn { background: #ff4500; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-size: 1rem; transition: 0.3s; }
-        .submit-btn:hover { background: #e63e00; transform: translateY(-2px); }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; overflow: hidden; border-radius: 8px; }
-        th { background-color: #ff4500; color: white; padding: 15px; text-align: center; }
-        td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; }
-        tr:hover { background-color: #fff9f6; }
-        .status-icon { font-size: 1.2rem; }
+    :root {
+        --dark-blue: #001f3f;
+        --vibrant-yellow: #ffcc00;
+        --text-dark: #111111;
+        --white: #ffffff;
+    }
+
+    body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        background-color: #f0f2f5; 
+        color: var(--text-dark);
+    }
+
+    .container { 
+        max-width: 1100px; /* Made wider for better visibility */
+        margin: 40px auto; 
+        padding: 30px; 
+        background: var(--white); 
+        border-radius: 15px; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+    }
+
+    /* Darker Top Text */
+    h2, h3 { 
+        color: var(--text-dark); /* Darker color for headings */
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    #user-display { color: var(--dark-blue); }
+
+    .attendance-form { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        background: var(--dark-blue); /* Theme color */
+        padding: 25px; 
+        border-radius: 12px; 
+        margin-bottom: 40px; 
+        color: var(--white);
+    }
+
+    .checkbox-group { 
+        display: flex; 
+        align-items: center; 
+        gap: 12px; 
+        font-size: 1.1rem;
+    }
+
+    /* Customizing the submit button to Yellow theme */
+    .submit-btn { 
+        background: var(--vibrant-yellow); 
+        color: var(--dark-blue); 
+        border: none; 
+        padding: 12px 30px; 
+        border-radius: 8px; 
+        cursor: pointer; 
+        font-size: 1rem; 
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover { 
+        background: #e6b800; 
+        transform: scale(1.05); 
+    }
+
+    /* Table Styling */
+    table { 
+        width: 100%; 
+        border-collapse: separate; 
+        border-spacing: 0;
+        margin-top: 20px; 
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid var(--dark-blue);
+    }
+
+    th { 
+        background-color: var(--dark-blue); /* Dark Blue Header */
+        color: var(--vibrant-yellow); /* Yellow text */
+        padding: 18px; 
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    td { 
+        padding: 15px; 
+        text-align: center; 
+        border-bottom: 1px solid #dee2e6;
+        font-weight: 500;
+        color: #333;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    
+    tr:nth-child(even) { background-color: #f8f9fa; }
+
+    tr:hover { background-color: #fff9db; } /* Slight yellow tint on hover */
+
+    .status-icon { font-size: 1.4rem; }
     </style>
 </head>
 <body>
@@ -27,7 +117,7 @@
         <div class="logo"><i class="fas fa-utensils"></i> MessPro</div>
         <nav>
             <ul>
-                <li><a href="index.html">Home</a></li>
+                <li><a href="index3.html">Home</a></li>
                 <li><a href="attendence.html" class="active">Attendance</a></li>
                 <li><a href="login.html" onclick="logout()">Logout</a></li>
             </ul>
