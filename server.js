@@ -69,14 +69,12 @@ app.post('/api/attendance', (req, res) => {
 });
 
 // ADMIN STATS: Counts students and complaints
-app.get('/api/admin/stats', (req, res) => {
-    db.get(`SELECT 
-        (SELECT COUNT(*) FROM users WHERE role = 'student') as totalStudents,
-        (SELECT COUNT(*) FROM issues WHERE status = 'Pending') as activeComplaints`, 
-    (err, row) => {
-        res.json(row);
+app.get('/api/admin/activity', (req, res) => {
+    db.all("SELECT * FROM activity", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
     });
-});
+})
 // Submit Complaint to SQLite
 app.post('/api/submit-issue', (req, res) => {
     const { username, type, category, subject, message, date } = req.body;
@@ -128,7 +126,40 @@ app.get('/api/admin/generate-bill/:username', (req, res) => {
         });
     });
 });
-app.post('/api/users', (req, res) => {
+// 1. Initialize the Inventory Table
+db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS inventory (
+        item_name TEXT PRIMARY KEY,
+        quantity REAL,
+        unit TEXT,
+        last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+});
+
+// 2. Route to Fetch Inventory [Matches your loadInventory() function]
+app.get('/api/inventory', (req, res) => {
+    db.all("SELECT * FROM inventory", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// 3. Route to Update Stock [Matches your updateInventory() function]
+app.post('/api/inventory/update', (req, res) => {
+    const { item_name, quantity, unit } = req.body;
+    const sql = `INSERT INTO inventory (item_name, quantity, unit, last_updated) 
+                 VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+                 ON CONFLICT(item_name) DO UPDATE SET 
+                 quantity = excluded.quantity, 
+                 unit = excluded.unit,
+                 last_updated = CURRENT_TIMESTAMP`;
+    
+    db.run(sql, [item_name, quantity, unit], function(err) {
+        if (err) return res.status(500).send("Database Error");
+        res.status(200).send("Inventory Updated!");
+    });
+});
+app.post('/api/admin/users', (req, res) => {
     const { username, name, room_no, plan_type } = req.body;
     const sql = `INSERT INTO users (username, name, room_no, plan_type) VALUES (?, ?, ?, ?)`;
     
