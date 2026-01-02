@@ -164,6 +164,54 @@
             </table>
         </div>
     </div>
+    <div class="stats-grid">
+    <div class="stat-card">
+        <h3>Breakfasts</h3>
+        <div class="value" id="b-val">0</div>
+    </div>
+    <div class="stat-card">
+        <h3>Lunches</h3>
+        <div class="value" id="l-val">0</div>
+    </div>
+    <div class="stat-card">
+        <h3>Dinners</h3>
+        <div class="value" id="d-val">0</div>
+    </div>
+    <div class="stat-card" style="background: #27ae60; color: white;">
+        <h3>Total Meals</h3>
+        <div class="value" id="total-val">0</div>
+    </div>
+</div>
+
+<script>
+async function updateDashboard() {
+    const user = localStorage.getItem('loggedUser');
+    
+    // 1. Fetch Stats for the cards
+    const statsRes = await fetch(`/api/attendance-stats/${user}`);
+    const stats = await statsRes.json();
+    document.getElementById('b-val').innerText = stats.breakfasts;
+    document.getElementById('l-val').innerText = stats.lunches;
+    document.getElementById('d-val').innerText = stats.dinners;
+    document.getElementById('total-val').innerText = stats.total;
+
+    // 2. Fetch History for the table
+    const historyRes = await fetch(`/api/attendance-history/${user}`);
+    const history = await historyRes.json();
+    const tableBody = document.getElementById('attendanceHistoryBody');
+    tableBody.innerHTML = history.map(row => `
+        <tr>
+            <td>${row.date}</td>
+            <td>${row.breakfast ? '✅' : '❌'}</td>
+            <td>${row.lunch ? '✅' : '❌'}</td>
+            <td>${row.dinner ? '✅' : '❌'}</td>
+        </tr>
+    `).join('');
+}
+
+// Run update on load
+window.onload = updateDashboard;
+</script>
 
     <script>
         // Check if user is logged in
