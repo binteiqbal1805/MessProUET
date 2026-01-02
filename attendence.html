@@ -109,6 +109,13 @@
     tr:hover { background-color: #fff9db; } /* Slight yellow tint on hover */
 
     .status-icon { font-size: 1.4rem; }
+    .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 30px;
+    text-align: center;
+    }
     </style>
 </head>
 <body>
@@ -203,10 +210,11 @@
             const stats = await statsRes.json();
             
             // Map JSON response to your dashboard IDs
-            document.getElementById('b-val').innerText = stats.breakfasts || 0;
-            document.getElementById('l-val').innerText = stats.lunches || 0;
-            document.getElementById('d-val').innerText = stats.dinners || 0;
-            document.getElementById('total-val').innerText = stats.total || 0;
+            // Change this inside updateDashboard()
+            document.getElementById('b-val').innerText = stats.breakfast || 0;
+            document.getElementById('l-val').innerText = stats.lunch || 0;
+            document.getElementById('d-val').innerText = stats.dinner || 0;
+            document.getElementById('total-val').innerText = (stats.breakfast + stats.lunch + stats.dinner) || 0;
 
             // B. Fetch History for the table
             const historyRes = await fetch(`/api/attendance-history/${currentUser}`);

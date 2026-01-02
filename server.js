@@ -67,6 +67,16 @@ app.post('/api/attendance', (req, res) => {
             res.json({ message: "Attendance saved!" });
         });
 });
+app.get('/api/attendance-stats/:username', (req, res) => {
+    const sql = `SELECT 
+        SUM(breakfast) as breakfast, 
+        SUM(lunch) as lunch, 
+        SUM(dinner) as dinner 
+        FROM attendance WHERE username = ?`;
+    db.get(sql, [req.params.username], (err, row) => {
+        res.json(row || { breakfast: 0, lunch: 0, dinner: 0 });
+    });
+});
 
 // ADMIN STATS: Counts students and complaints
 app.get('/api/admin/activity', (req, res) => {
