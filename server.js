@@ -4,17 +4,10 @@ const path = require('path');
 const app = express();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'Public')));
 const path = require('path');
 
-// Tell express to serve all files from your 'public' folder
-app.use(express.static(path.join(__dirname, 'public')));
 
-// Explicitly handle the request for index3.html
-app.get('/index3.html', (req, res) => {
-    // Make sure the file is actually named index3.html inside your public folder
-    res.sendFile(path.join(__dirname, 'public', 'index3.html'));
-});
 
 
 // Create or open the messpro.db file
