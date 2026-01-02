@@ -69,62 +69,48 @@
     </div>
 
     <script>
-        let fullActivityData = [];
+        let fullActivityData = []; // This must hold the data from image_b33b6f
 
-        async function initDashboard() {
-            await fetchStats();
-            await fetchRecentActivity();
-        }
+async function fetchRecentActivity() {
+    try {
+        const res = await fetch('/api/admin/activity');
+        fullActivityData = await res.json();
+        renderTable(fullActivityData); // Initial render of all students
+    } catch (err) {
+        console.error("Activity Error:", err);
+    }
+}
 
-        async function fetchStats() {
-            const res = await fetch('/api/admin/stats');
-            const data = await res.json();
-            document.getElementById('stat-students').innerText = data.totalStudents || 0;
-            document.getElementById('stat-meals').innerText = data.mealsToday || 0;
-            document.getElementById('stat-complaints').innerText = data.complaints || 0;
-        }
+function filterActivity() {
+    // Get the search value from the bar
+    const query = document.getElementById('studentSearch').value.toLowerCase();
+    
+    // Filter the data stored in the database
+    const filtered = fullActivityData.filter(item => 
+        item.username.toLowerCase().includes(query)
+    );
+    
+    renderTable(filtered);
+}
 
-        async function fetchRecentActivity() {
-            const res = await fetch('/api/admin/activity');
-            fullActivityData = await res.json();
-            renderTable(fullActivityData);
-        }
+function renderTable(data) {
+    const body = document.getElementById('activity-body');
+    body.innerHTML = '';
 
-        function renderTable(data) {
-            const body = document.getElementById('activity-body');
-            body.innerHTML = '';
+    if (data.length === 0) {
+        body.innerHTML = '<tr><td colspan="3" class="no-data">No activity found.</td></tr>';
+        return;
+    }
 
-            if (data.length === 0) {
-                body.innerHTML = '<tr><td colspan="3" class="no-data">No activity found.</td></tr>';
-                return;
-            }
-
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${row.username}</strong></td>
-                    <td>${row.date}</td>
-                    <td><span class="meal-pill">${row.last_action || 'N/A'}</span></td>
-                `;
-                body.appendChild(tr);
-            });
-        }
-
-        // Real-time search filter
-        function filterActivity() {
-            const query = document.getElementById('studentSearch').value.toLowerCase();
-            const filtered = fullActivityData.filter(item => 
-                item.username.toLowerCase().includes(query)
-            );
-            renderTable(filtered);
-        }
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
-
-        window.onload = initDashboard;
+    data.forEach(row => {
+        body.innerHTML += `
+            <tr>
+                <td><strong>${row.username}</strong></td>
+                <td>${row.date}</td>
+                <td><span class="meal-pill">${row.last_action || 'N/A'}</span></td>
+            </tr>`;
+    });
+}
     </script>
 </body>
 </html>
