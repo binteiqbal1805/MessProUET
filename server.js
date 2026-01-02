@@ -7,6 +7,9 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'Public')));
 const path = require('path');
 
+app.get('/index3.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'index3.html'));
+});
 
 
 
