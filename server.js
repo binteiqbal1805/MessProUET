@@ -128,6 +128,28 @@ app.get('/api/admin/generate-bill/:username', (req, res) => {
         });
     });
 });
+app.post('/api/users', (req, res) => {
+    const { username, name, room_no, plan_type } = req.body;
+    const sql = `INSERT INTO users (username, name, room_no, plan_type) VALUES (?, ?, ?, ?)`;
+    
+    db.run(sql, [username, name, room_no, plan_type], function(err) {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).send("Failed to add student.");
+        }
+        res.status(200).send("Student added successfully!");
+    });
+});
+app.get('/api/admin/users', (req, res) => {
+    db.all("SELECT * FROM users", [], (err, rows) => {
+        if (err) return res.status(500).send(err.message);
+        res.json(rows);
+    });
+});
+
+app.get('/index3.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index3.html'));
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
