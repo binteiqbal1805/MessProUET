@@ -159,7 +159,7 @@ app.post('/api/inventory/update', (req, res) => {
         res.status(200).send("Inventory Updated!");
     });
 });
-app.post('/api/admin/users', (req, res) => {
+app.post('/api/users', (req, res) => {
     const { username, name, room_no, plan_type } = req.body;
     const sql = `INSERT INTO users (username, name, room_no, plan_type) VALUES (?, ?, ?, ?)`;
     
