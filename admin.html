@@ -29,21 +29,105 @@
         </div>
     </header>
 
-    <div class="stats">Registered Students: <span id="stat-students">0</span></div>
-<table>
-    <thead><tr><th>ID</th><th>Name</th><th>Date</th><th>Meals</th></tr></thead>
-    <tbody id="activity-body"></tbody>
-</table>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Registered Students</h3>
+            <div class="value" id="stat-students">0</div>
+            <i class="fas fa-users icon-bg"></i>
+        </div>
+        <div class="stat-card">
+            <h3>Meals Served (Today)</h3>
+            <div class="value" id="stat-meals">0</div>
+            <i class="fas fa-utensils icon-bg"></i>
+        </div>
+        <div class="stat-card">
+            <h3>Active Complaints</h3>
+            <div class="value" id="stat-complaints">0</div>
+            <i class="fas fa-exclamation-triangle icon-bg" style="color: var(--danger);"></i>
+        </div>
+    </div>
 
+    <div class="search-container">
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="studentSearch" onkeyup="filterActivity()" placeholder="Search Student ID...">
+        </div>
+    </div>
+
+    <div class="activity-section">
+        <table id="activityTable">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Date</th>
+                    <th>Meals Tracked</th>
+                </tr>
+            </thead>
+            <tbody id="activity-body">
+                </tbody>
+        </table>
+    </div>
 <script>
+let allActivityData = []; 
+
+// 1. Load Data from SQLite
 async function loadDashboard() {
-    const res = await fetch('/api/admin/activity');
-    const data = await res.json();
-    document.getElementById('activity-body').innerHTML = data.map(row => `
-        <tr><td>${row.username}</td><td>${row.name}</td><td>${row.date}</td>
-        <td>${row.last_action}</td></tr>`).join('');
-    document.getElementById('stat-students').innerText = new Set(data.map(d => d.username)).size;
+    try {
+        const res = await fetch('/api/admin/activity');
+        allActivityData = await res.json();
+        
+        // Render the full table and update stats
+        renderTable(allActivityData); 
+        updateStats();
+    } catch (err) {
+        console.error("Failed to load admin data from messpro.db:", err);
+    }
 }
+
+// 2. Filter Logic for Search Bar
+function filterActivity() {
+    const query = document.getElementById('studentSearch').value.toLowerCase();
+    
+    // Filters through the username (student101) or full_name columns
+    const filtered = allActivityData.filter(item => 
+        item.username.toLowerCase().includes(query) || 
+        (item.name && item.name.toLowerCase().includes(query))
+    );
+    
+    renderTable(filtered);
+}
+
+// 3. Render Table Rows
+function renderTable(data) {
+    const body = document.getElementById('activity-body');
+    body.innerHTML = '';
+
+    if (data.length === 0) {
+        body.innerHTML = '<tr><td colspan="4" class="no-data">No results found in messpro.db.</td></tr>';
+        return;
+    }
+
+    data.forEach(row => {
+        // Displays the date and meal string (B, L, D) stored in your SQLite file
+        body.innerHTML += `
+            <tr>
+                <td><strong>${row.username}</strong></td>
+                <td>${row.name || 'Student'}</td>
+                <td>${row.date}</td>
+                <td><span class="meal-pill">${row.last_action || 'None'}</span></td>
+            </tr>`;
+    });
+}
+
+// 4. Update Stats Cards
+function updateStats() {
+    // Counts unique usernames in the attendance/users table
+    const count = new Set(allActivityData.map(s => s.username)).size;
+    const studentStat = document.getElementById('stat-students');
+    if (studentStat) studentStat.innerText = count;
+}
+
+// Run when the admin panel opens
 window.onload = loadDashboard;
 </script>
 </body>

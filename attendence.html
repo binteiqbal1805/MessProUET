@@ -184,37 +184,83 @@
 </div>
 
 <script>
-    // 1. Check if user is logged in
+    // 1. Initial Identity & Security Check
     const currentUser = localStorage.getItem('loggedUser');
     const isLoggedIn = localStorage.getItem('isLoggedIn');
 
     if (!isLoggedIn || !currentUser) {
         window.location.href = "login.html";
     } else {
-        // Displays username like 'student101'
-        const display = document.getElementById('user-display');
-        if(display) display.innerText = currentUser;
+        const userDisplay = document.getElementById('user-display');
+        if (userDisplay) userDisplay.innerText = currentUser;
     }
 
-    // 2. LOAD HISTORY FROM SQLITE
-   async function loadHistory() {
-    const res = await fetch(`/api/attendance-history/${localStorage.getItem('loggedUser')}`);
-    const data = await res.json();
-    document.getElementById('attendanceHistoryBody').innerHTML = data.map(row => `
-        <tr><td>${row.date}</td><td>${row.breakfast ? '✅' : '❌'}</td><td>${row.lunch ? '✅' : '❌'}</td><td>${row.dinner ? '✅' : '❌'}</td></tr>`).join('');
-}
-async function submitAttendance() {
-    const data = {
-        username: localStorage.getItem('loggedUser'),
-        date: new Date().toISOString().split('T')[0],
-        breakfast: document.getElementById('breakfast').checked ? 1 : 0,
-        lunch: document.getElementById('lunch').checked ? 1 : 0,
-        dinner: document.getElementById('dinner').checked ? 1 : 0
-    };
-    await fetch('/api/attendance', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-    alert("Saved!"); loadHistory();
-}
-window.onload = loadHistory;
+    // 2. Main Function to Refresh All Data from messpro.db
+    async function updateDashboard() {
+        try {
+            // A. Fetch Stats for the cards (Totaling the 1s)
+            const statsRes = await fetch(`/api/attendance-stats/${currentUser}`);
+            const stats = await statsRes.json();
+            
+            // Map JSON response to your dashboard IDs
+            document.getElementById('b-val').innerText = stats.breakfasts || 0;
+            document.getElementById('l-val').innerText = stats.lunches || 0;
+            document.getElementById('d-val').innerText = stats.dinners || 0;
+            document.getElementById('total-val').innerText = stats.total || 0;
+
+            // B. Fetch History for the table
+            const historyRes = await fetch(`/api/attendance-history/${currentUser}`);
+            const history = await historyRes.json();
+            const tableBody = document.getElementById('attendanceHistoryBody');
+            
+            if (history.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4">No records found.</td></tr>';
+                return;
+            }
+
+            // Render checkmarks based on SQLite 1s and 0s
+            tableBody.innerHTML = history.map(row => `
+                <tr>
+                    <td>${row.date}</td>
+                    <td class="status-icon">${row.breakfast === 1 ? '✅' : '❌'}</td>
+                    <td class="status-icon">${row.lunch === 1 ? '✅' : '❌'}</td>
+                    <td class="status-icon">${row.dinner === 1 ? '✅' : '❌'}</td>
+                </tr>
+            `).join('');
+        } catch (err) {
+            console.error("Dashboard Update Error:", err);
+        }
+    }
+
+    // 3. Submit Attendance to messpro.db
+    async function submitAttendance() {
+        const attendanceData = {
+            username: currentUser,
+            date: new Date().toISOString().split('T')[0],
+            breakfast: document.getElementById('breakfast').checked ? 1 : 0,
+            lunch: document.getElementById('lunch').checked ? 1 : 0,
+            dinner: document.getElementById('dinner').checked ? 1 : 0
+        };
+
+        const response = await fetch('/api/attendance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(attendanceData)
+        });
+
+        if (response.ok) {
+            alert("Success! Your stats and history are updating.");
+            updateDashboard(); // Refreshes both cards and table
+        }
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+    }
+
+    // Run update on load
+    window.onload = updateDashboard;
 </script>
 </body>
 </html>
