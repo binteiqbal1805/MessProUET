@@ -184,59 +184,54 @@
 </div>
 
 <script>
-    // 1. Initial Identity & Security Check
+    // 1. Check if user is logged in
     const currentUser = localStorage.getItem('loggedUser');
     const isLoggedIn = localStorage.getItem('isLoggedIn');
 
     if (!isLoggedIn || !currentUser) {
         window.location.href = "login.html";
     } else {
-        const userDisplay = document.getElementById('user-display');
-        if (userDisplay) userDisplay.innerText = currentUser;
+        // Displays username like 'student101'
+        const display = document.getElementById('user-display');
+        if(display) display.innerText = currentUser;
     }
 
-    // 2. Main Function to Refresh All Data from messpro.db
-    async function updateDashboard() {
+    // 2. LOAD HISTORY FROM SQLITE
+    async function loadHistory() {
         try {
-            // A. Fetch Stats for the cards (Totaling the 1s)
-            const statsRes = await fetch(`/api/attendance-stats/${currentUser}`);
-            const stats = await statsRes.json();
-            
-            // Map JSON response to your dashboard IDs
-            document.getElementById('b-val').innerText = stats.breakfasts || 0;
-            document.getElementById('l-val').innerText = stats.lunches || 0;
-            document.getElementById('d-val').innerText = stats.dinners || 0;
-            document.getElementById('total-val').innerText = stats.total || 0;
-
-            // B. Fetch History for the table
-            const historyRes = await fetch(`/api/attendance-history/${currentUser}`);
-            const history = await historyRes.json();
+            // Updated route to match the SQLite query in your server
+            const response = await fetch(`/api/attendance-history/${currentUser}`);
+            const data = await response.json();
             const tableBody = document.getElementById('attendanceHistoryBody');
             
-            if (history.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4">No records found.</td></tr>';
+            tableBody.innerHTML = ''; 
+
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4">No records found. Submit your meals above!</td></tr>';
                 return;
             }
 
-            // Render checkmarks based on SQLite 1s and 0s
-            tableBody.innerHTML = history.map(row => `
-                <tr>
+            // Maps SQLite 1s and 0s to checkmarks
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
                     <td>${row.date}</td>
                     <td class="status-icon">${row.breakfast === 1 ? '✅' : '❌'}</td>
                     <td class="status-icon">${row.lunch === 1 ? '✅' : '❌'}</td>
                     <td class="status-icon">${row.dinner === 1 ? '✅' : '❌'}</td>
-                </tr>
-            `).join('');
+                `;
+                tableBody.appendChild(tr);
+            });
         } catch (err) {
-            console.error("Dashboard Update Error:", err);
+            console.error("Error loading SQLite data:", err);
         }
     }
 
-    // 3. Submit Attendance to messpro.db
+    // 3. SUBMIT TO SQLITE
     async function submitAttendance() {
         const attendanceData = {
             username: currentUser,
-            date: new Date().toISOString().split('T')[0],
+            date: new Date().toISOString().split('T')[0], // Saves as YYYY-MM-DD
             breakfast: document.getElementById('breakfast').checked ? 1 : 0,
             lunch: document.getElementById('lunch').checked ? 1 : 0,
             dinner: document.getElementById('dinner').checked ? 1 : 0
@@ -249,8 +244,10 @@
         });
 
         if (response.ok) {
-            alert("Success! Your stats and history are updating.");
-            updateDashboard(); // Refreshes both cards and table
+            alert("Attendance recorded in messpro.db!");
+            loadHistory(); // Refresh table to show the new record
+        } else {
+            alert("Error saving attendance.");
         }
     }
 
@@ -259,8 +256,8 @@
         window.location.href = "login.html";
     }
 
-    // Run update on load
-    window.onload = updateDashboard;
+    // Run on startup
+    window.onload = loadHistory;
 </script>
 </body>
 </html>
