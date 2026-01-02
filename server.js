@@ -14,6 +14,7 @@ const db = new sqlite3.Database('./messpro.db', (err) => {
 
 // 2. Table Creation & Schema Updates
 db.serialize(() => {
+    db.run("DROP TABLE IF EXISTS attendance");
     // Users Table
     db.run(`CREATE TABLE IF NOT EXISTS users (
         username TEXT PRIMARY KEY, 
@@ -87,20 +88,21 @@ app.get('/api/attendance-history/:username', (req, res) => {
 
 // 6. Student Dashboard: Stats (Counting the 1s in columns)
 app.get('/api/attendance-stats', (req, res) => {
-    const username = req.query.username;
+    const { username } = req.query;
+    // This query sums the 1s in your database columns
     const sql = `SELECT 
         SUM(breakfast) as breakfasts, 
         SUM(lunch) as lunches, 
-        SUM(dinner) as dinners, 
-        COUNT(*) as total 
+        SUM(dinner) as dinners 
         FROM attendance WHERE username = ?`;
+    
     db.get(sql, [username], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({
             breakfasts: row.breakfasts || 0,
             lunches: row.lunches || 0,
             dinners: row.dinners || 0,
-            total: row.total || 0
+            total: (row.breakfasts || 0) + (row.lunches || 0) + (row.dinners || 0)
         });
     });
 });

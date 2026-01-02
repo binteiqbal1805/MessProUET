@@ -206,37 +206,27 @@
         }
 
         // SUBMIT DATA
-        async function submitAttendance() {
-            const data = {
-                username: currentUser,
-                date: new Date().toISOString().split('T')[0],
-                breakfast: document.getElementById('breakfast').checked ? 1 : 0,
-                lunch: document.getElementById('lunch').checked ? 1 : 0,
-                dinner: document.getElementById('dinner').checked ? 1 : 0
-            };
+        // Corrected Submit Function to match your DB columns
+async function submitAttendance() {
+    const attendanceData = {
+        username: currentUser,
+        date: new Date().toISOString().split('T')[0],
+        breakfast: document.getElementById('breakfast').checked ? 1 : 0, // Saves as 1 or 0
+        lunch: document.getElementById('lunch').checked ? 1 : 0,
+        dinner: document.getElementById('dinner').checked ? 1 : 0
+    };
 
-            try {
-                const response = await fetch('/api/attendance', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+    const response = await fetch('/api/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(attendanceData)
+    });
 
-                if (response.ok) {
-                    alert("✅ Attendance saved successfully!");
-                    // Uncheck boxes for next time
-                    document.getElementById('breakfast').checked = false;
-                    document.getElementById('lunch').checked = false;
-                    document.getElementById('dinner').checked = false;
-                    // REFRESH TABLE IMMEDIATELY
-                    loadHistory();
-                } else {
-                    alert("❌ Error saving data. Try again.");
-                }
-            } catch (error) {
-                alert("❌ Server connection error.");
-            }
-        }
+    if (response.ok) {
+        alert("Success! Check your history below.");
+        loadHistory(); // This will now show the checkmarks correctly
+    }
+}
 
         function logout() {
             localStorage.clear();
