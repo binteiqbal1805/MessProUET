@@ -59,67 +59,39 @@
         <button onclick="updateInventory()" style="background: #00ff88; color: black; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">Update Stock</button>
     </div>
 
-    <table style="width: 100%; border-collapse: collapse; background: #0d1621; border-radius: 12px; overflow: hidden;">
-        <thead style="background: #1a2635; color: #00ff88;">
-            <tr>
-                <th style="padding: 15px; text-align: left;">Item Name</th>
-                <th style="padding: 15px; text-align: left;">In Stock</th>
-                <th style="padding: 15px; text-align: left;">Last Updated</th>
-            </tr>
-        </thead>
-        <tbody id="inventoryBody">
-            </tbody>
-    </table>
+    <div class="inventory-controls">
+    <input type="text" id="itemName" placeholder="Item Name">
+    <input type="number" id="itemQty" placeholder="Qty">
+    <input type="text" id="itemUnit" placeholder="Unit (kg/ltr)">
+    <button onclick="updateInventory()">Update Stock</button>
 </div>
+<table border="1">
+    <thead><tr><th>Item</th><th>Stock</th><th>Last Updated</th></tr></thead>
+    <tbody id="inventoryBody"></tbody>
+</table>
 
 <script>
-// 1. Fetch Inventory from SQLite
 async function loadInventory() {
-    try {
-        const res = await fetch('/api/inventory');
-        const data = await res.json();
-        const body = document.getElementById('inventoryBody');
-        
-        body.innerHTML = data.map(item => `
-            <tr style="border-bottom: 1px solid #1a2635;">
-                <td style="padding: 15px;">${item.item_name}</td>
-                <td style="padding: 15px;">
-                    <span style="color: ${item.quantity < 10 ? '#ff4d4d' : '#00ff88'}">
-                        ${item.quantity} ${item.unit}
-                    </span>
-                </td>
-                <td style="padding: 15px; color: #718096; font-size: 0.8rem;">
-                    ${new Date(item.last_updated).toLocaleString()}
-                </td>
-            </tr>
-        `).join('');
-    } catch (err) {
-        console.error("Error loading inventory:", err);
-    }
+    const res = await fetch('/api/inventory');
+    const data = await res.json();
+    document.getElementById('inventoryBody').innerHTML = data.map(i => `
+        <tr><td>${i.item_name}</td><td>${i.quantity} ${i.unit}</td>
+        <td>${new Date(i.last_updated).toLocaleString()}</td></tr>`).join('');
 }
 
-// 2. Update Stock in messpro.db
 async function updateInventory() {
     const payload = {
         item_name: document.getElementById('itemName').value,
         quantity: document.getElementById('itemQty').value,
         unit: document.getElementById('itemUnit').value
     };
-
-    const res = await fetch('/api/inventory/update', {
+    await fetch('/api/inventory/update', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload)
     });
-
-    if (res.ok) {
-        alert("Inventory Updated!");
-        loadInventory(); // Refresh the table
-        document.getElementById('itemName').value = '';
-        document.getElementById('itemQty').value = '';
-    }
+    loadInventory();
 }
-
 window.onload = loadInventory;
 </script>
 </body>

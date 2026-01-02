@@ -197,67 +197,24 @@
     }
 
     // 2. LOAD HISTORY FROM SQLITE
-    async function loadHistory() {
-        try {
-            // Updated route to match the SQLite query in your server
-            const response = await fetch(`/api/attendance-history/${currentUser}`);
-            const data = await response.json();
-            const tableBody = document.getElementById('attendanceHistoryBody');
-            
-            tableBody.innerHTML = ''; 
-
-            if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4">No records found. Submit your meals above!</td></tr>';
-                return;
-            }
-
-            // Maps SQLite 1s and 0s to checkmarks
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.date}</td>
-                    <td class="status-icon">${row.breakfast === 1 ? '✅' : '❌'}</td>
-                    <td class="status-icon">${row.lunch === 1 ? '✅' : '❌'}</td>
-                    <td class="status-icon">${row.dinner === 1 ? '✅' : '❌'}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        } catch (err) {
-            console.error("Error loading SQLite data:", err);
-        }
-    }
-
-    // 3. SUBMIT TO SQLITE
-    async function submitAttendance() {
-        const attendanceData = {
-            username: currentUser,
-            date: new Date().toISOString().split('T')[0], // Saves as YYYY-MM-DD
-            breakfast: document.getElementById('breakfast').checked ? 1 : 0,
-            lunch: document.getElementById('lunch').checked ? 1 : 0,
-            dinner: document.getElementById('dinner').checked ? 1 : 0
-        };
-
-        const response = await fetch('/api/attendance', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(attendanceData)
-        });
-
-        if (response.ok) {
-            alert("Attendance recorded in messpro.db!");
-            loadHistory(); // Refresh table to show the new record
-        } else {
-            alert("Error saving attendance.");
-        }
-    }
-
-    function logout() {
-        localStorage.clear();
-        window.location.href = "login.html";
-    }
-
-    // Run on startup
-    window.onload = loadHistory;
+   async function loadHistory() {
+    const res = await fetch(`/api/attendance-history/${localStorage.getItem('loggedUser')}`);
+    const data = await res.json();
+    document.getElementById('attendanceHistoryBody').innerHTML = data.map(row => `
+        <tr><td>${row.date}</td><td>${row.breakfast ? '✅' : '❌'}</td><td>${row.lunch ? '✅' : '❌'}</td><td>${row.dinner ? '✅' : '❌'}</td></tr>`).join('');
+}
+async function submitAttendance() {
+    const data = {
+        username: localStorage.getItem('loggedUser'),
+        date: new Date().toISOString().split('T')[0],
+        breakfast: document.getElementById('breakfast').checked ? 1 : 0,
+        lunch: document.getElementById('lunch').checked ? 1 : 0,
+        dinner: document.getElementById('dinner').checked ? 1 : 0
+    };
+    await fetch('/api/attendance', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+    alert("Saved!"); loadHistory();
+}
+window.onload = loadHistory;
 </script>
 </body>
 </html>

@@ -32,86 +32,46 @@
             <button class="add-btn" onclick="showAddStudentModal()">+ Add New Student</button>
         </div>
     </div>
-
     <table class="admin-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Room No.</th>
-                <th>Plan Type</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="studentTableBody">
-            </tbody>
-    </table>
-</main>
+    <thead>
+        <tr><th>ID</th><th>Name</th><th>Room</th><th>Plan</th><th>Actions</th></tr>
+    </thead>
+    <tbody id="studentTableBody"></tbody>
+</table>
+
+<div id="addModal" style="background:white; padding:20px; border:1px solid #ccc; position:fixed; top:20%; left:30%; width:400px;">
+    <h3>Add Student</h3>
+    <input type="text" id="newID" placeholder="Student ID">
+    <input type="text" id="newName" placeholder="Full Name">
+    <input type="text" id="newRoom" placeholder="Room No">
+    <input type="text" id="newPlan" placeholder="Plan (Regular/Premium)">
+    <button onclick="addNewStudent()">Save Student</button>
+</div>
 
 <script>
-function searchStudents() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
-        const rows = document.querySelectorAll('#studentTableBody tr');
-        
-        rows.forEach(row => {
-            const name = row.cells[1].innerText.toLowerCase();
-            const id = row.cells[0].innerText.toLowerCase();
-            row.style.display = (name.includes(input) || id.includes(input)) ? "" : "none";
-        });
-    }
-    // 1. Load data when page opens
-    window.onload = loadStudents;
+async function loadStudents() {
+    const res = await fetch('/api/admin/users');
+    const students = await res.json();
+    document.getElementById('studentTableBody').innerHTML = students.map(s => `
+        <tr><td>${s.username}</td><td>${s.name}</td><td>${s.room_no}</td><td>${s.plan_type}</td>
+        <td><button onclick="deleteUser('${s.username}')">🗑️</button></td></tr>`).join('');
+}
 
-    async function loadStudents() {
-        try {
-            const res = await fetch('/api/admin/users');
-            const students = await res.json();
-            
-            const body = document.getElementById('studentTableBody');
-            if (students.length === 0) {
-                body.innerHTML = '<tr><td colspan="6" style="text-align:center;">No students found</td></tr>';
-                return;
-            }
-
-            body.innerHTML = students.map(s => `
-                <tr>
-                    <td>#${s.username}</td>
-                    <td>${s.username === '1024' ? 'Rahul Sharma' : 'New Student'}</td>
-                    <td>B-201</td>
-                    <td>Regular</td>
-                    <td><span class="status-badge active">Active</span></td>
-                    <td>
-                        <button class="icon-btn">📝</button>
-                        <button class="icon-btn" onclick="deleteUser('${s.username}')">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        } catch (err) {
-            console.error("Failed to load students:", err);
-        }
-    }
-
-    // 2. Add Student Logic
-    async function addNewStudent() {
+async function addNewStudent() {
     const studentData = {
         username: document.getElementById('newID').value,
         name: document.getElementById('newName').value,
         room_no: document.getElementById('newRoom').value,
         plan_type: document.getElementById('newPlan').value
     };
-
-    const res = await fetch('/api/users', {
+    await fetch('/api/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(studentData)
     });
-
-    if (res.ok) {
-        alert("Student added permanently!");
-        location.reload(); // Data stays because it's in Postgres!
-    }
+    location.reload();
 }
+window.onload = loadStudents;
 </script>
 </body>
 </html>
