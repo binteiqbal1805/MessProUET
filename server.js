@@ -7,44 +7,41 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 // 1. Database Connection
-const db = new sqlite3.Database('./messpro.db', (err) => {
-    if (err) console.error("Database error:", err.message);
-    else console.log("✅ Connected to SQLite Database.");
+const { Pool } = require('pg');
+
+// Use the External Database URL you just copied
+const pool = new Pool({
+    connectionString: "postgresql://messpro_db_user:D9pVqaCoshpu8uQt0PqKuC3dLKMn4ssQ@dpg-d5boc4je5dus73frqe6g-a.virginia-postgres.render.com/messpro_db",
+    ssl: { rejectUnauthorized: false }
 });
 
-// 2. Table Creation & Schema Updates
-db.serialize(() => {
-    
-    // Users Table
-    db.run(`CREATE TABLE IF NOT EXISTS users (
-        username TEXT PRIMARY KEY, 
-        password TEXT, 
-        role TEXT DEFAULT 'student', 
-        full_name TEXT, 
-        date TEXT
-    )`);
-
-    // Attendance Table (With ID for Activity tracking)
-    db.run(`CREATE TABLE IF NOT EXISTS attendance (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT, 
-        date TEXT, 
-        breakfast INTEGER DEFAULT 0, 
-        lunch INTEGER DEFAULT 0, 
-        dinner INTEGER DEFAULT 0
-    )`);
-
-    // Issues/Complaints Table
-    db.run(`CREATE TABLE IF NOT EXISTS issues (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT,
-        type TEXT,
-        category TEXT,
-        subject TEXT,
-        message TEXT,
-        date TEXT
-    )`);
-});
+async function initDB() {
+    try {
+        // Create permanent tables - these will NOT wipe on refresh
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                username TEXT PRIMARY KEY, 
+                name TEXT, 
+                room_no TEXT, 
+                plan_type TEXT, 
+                status TEXT DEFAULT 'Active'
+            );
+            
+            CREATE TABLE IF NOT EXISTS attendance (
+                id SERIAL PRIMARY KEY,
+                username TEXT REFERENCES users(username),
+                date TEXT,
+                breakfast INTEGER DEFAULT 0,
+                lunch INTEGER DEFAULT 0,
+                dinner INTEGER DEFAULT 0
+            );
+        `);
+        console.log("✅ Connected to Permanent PostgreSQL Database");
+    } catch (err) {
+        console.error("❌ Database Connection Error:", err);
+    }
+}
+initDB();
 
 // 3. Authentication Route (Handles Login & Auto-Registration)
 app.post('/api/login', (req, res) => {

@@ -67,57 +67,34 @@
                 </tbody>
         </table>
     </div>
+<script>
+let allActivityData = []; 
 
-    <script>
-    let fullActivityData = []; 
-
-// 1. Initialize Dashboard on Load
-async function initDashboard() {
-    await fetchStats();
-    await fetchActivity();
+async function loadDashboard() {
+    const res = await fetch('/api/admin/activity');
+    allActivityData = await res.json();
+    renderTable(allActivityData); // Show all initially
+    updateStats();
 }
 
-// 2. Fetch Live Stats for Summary Cards
-async function fetchStats() {
-    try {
-        const res = await fetch('/api/admin/stats');
-        const data = await res.json();
-        // Updates based on the users shown in your User Management page
-        document.getElementById('stat-students').innerText = data.totalStudents || 0;
-        document.getElementById('stat-meals').innerText = data.mealsToday || 0;
-        document.getElementById('stat-complaints').innerText = data.complaints || 0;
-    } catch (err) { console.error("Stats Error:", err); }
-}
-
-// 3. Fetch Recent Activity (JOINed data from User and Attendance tables)
-async function fetchActivity() {
-    try {
-        const res = await fetch('/api/admin/activity');
-        fullActivityData = await res.json();
-        renderTable(fullActivityData);
-    } catch (err) { console.error("Activity Error:", err); }
-}
-
-// 4. Single, Powerful Filter Function for the Search Bar
 function filterActivity() {
     const query = document.getElementById('studentSearch').value.toLowerCase();
     
-    // Filters through the username (e.g., student101)
-    const filtered = fullActivityData.filter(item => 
-        item.username.toLowerCase().includes(query) ||
+    // Filters through the actual database rows for student101
+    const filtered = allActivityData.filter(item => 
+        item.username.toLowerCase().includes(query) || 
         (item.name && item.name.toLowerCase().includes(query))
     );
     
     renderTable(filtered);
 }
 
-// 5. Render the Table Rows
 function renderTable(data) {
     const body = document.getElementById('activity-body');
     body.innerHTML = '';
 
     if (data.length === 0) {
-        body.innerHTML = '<tr><td colspan="3" class="no-data">No activity found.</td></tr>';
+        body.innerHTML = '<tr><td colspan="4" class="no-data">No results found.</td></tr>';
         return;
     }
 
@@ -125,15 +102,22 @@ function renderTable(data) {
         body.innerHTML += `
             <tr>
                 <td><strong>${row.username}</strong></td>
-                <td>${row.date || 'N/A'}</td>
-                <td><span class="meal-pill">${row.last_action || 'No Meals Tracked'}</span></td>
+                <td>${row.name || 'Student'}</td>
+                <td>${row.date}</td>
+                <td><span class="meal-pill">${row.last_action || 'N/A'}</span></td>
             </tr>`;
     });
 }
 
-window.onload = initDashboard;    
+function updateStats() {
+    // Correctly updates Registered Students count
+    const count = new Set(allActivityData.map(s => s.username)).size;
+    document.getElementById('stat-students').innerText = count;
+}
 
-    </script>
+window.onload = loadDashboard;
+    
+</script>
 </body>
 </html>
 
