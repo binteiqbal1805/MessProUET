@@ -55,19 +55,28 @@
 <script>
     async function sendFeedback() {
         const loggedUser = localStorage.getItem('loggedUser');
-        const rating = document.querySelector('input[name="rate"]:checked').value;
+        
+        // 1. Capture the star rating safely
+        const ratingElement = document.querySelector('input[name="rate"]:checked');
+        if (!ratingElement) {
+            alert("Please select a star rating first!");
+            return;
+        }
+        const rating = ratingElement.value;
         const message = document.getElementById('suggest').value;
 
+        // 2. Map data to your SQLite 'issues' table columns
         const data = {
             username: loggedUser || "Anonymous",
             type: "Feedback",
             category: "General",
             subject: `Rating: ${rating} Star`,
             message: message,
-            date: new Date().toISOString().split('T')[0]
+            date: new Date().toISOString().split('T')[0] // Format: YYYY-MM-DD
         };
 
         try {
+            // 3. Send to your SQLite backend
             const res = await fetch('/api/submit-issue', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -75,10 +84,13 @@
             });
 
             if (res.ok) {
-                alert("⭐ Thank you for your feedback!");
+                alert("⭐ Thank you for your feedback! It has been saved in messpro.db.");
                 location.reload();
+            } else {
+                alert("❌ Could not save feedback. Try again later.");
             }
         } catch (err) {
+            console.error("Feedback error:", err);
             alert("❌ Connection failed.");
         }
     }

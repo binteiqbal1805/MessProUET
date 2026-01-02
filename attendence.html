@@ -184,105 +184,83 @@
 </div>
 
 <script>
-async function updateDashboard() {
-    const user = localStorage.getItem('loggedUser');
-    
-    // 1. Fetch Stats for the cards
-    const statsRes = await fetch(`/api/attendance-stats/${user}`);
-    const stats = await statsRes.json();
-    document.getElementById('b-val').innerText = stats.breakfasts;
-    document.getElementById('l-val').innerText = stats.lunches;
-    document.getElementById('d-val').innerText = stats.dinners;
-    document.getElementById('total-val').innerText = stats.total;
+    // 1. Initial Identity & Security Check
+    const currentUser = localStorage.getItem('loggedUser');
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
 
-    // 2. Fetch History for the table
-    const historyRes = await fetch(`/api/attendance-history/${user}`);
-    const history = await historyRes.json();
-    const tableBody = document.getElementById('attendanceHistoryBody');
-    tableBody.innerHTML = history.map(row => `
-        <tr>
-            <td>${row.date}</td>
-            <td>${row.breakfast ? '✅' : '❌'}</td>
-            <td>${row.lunch ? '✅' : '❌'}</td>
-            <td>${row.dinner ? '✅' : '❌'}</td>
-        </tr>
-    `).join('');
-}
-
-// Run update on load
-window.onload = updateDashboard;
-</script>
-
-    <script>
-        // Check if user is logged in
-        const currentUser = localStorage.getItem('loggedUser');
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-
-        if (!isLoggedIn || !currentUser) {
-            window.location.href = "login.html";
-        } else {
-            document.getElementById('user-display').innerText = currentUser;
-        }
-
-        // LOAD TABLE DATA
-        async function loadHistory() {
-            try {
-                const response = await fetch(`/api/attendance-history/${currentUser}`);
-                const data = await response.json();
-                const tableBody = document.getElementById('attendanceHistoryBody');
-                
-                tableBody.innerHTML = ''; // Clear table
-
-                if (data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="4">No records found for this week.</td></tr>';
-                    return;
-                }
-
-                data.forEach(row => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${row.date}</td>
-                        <td class="status-icon">${row.breakfast ? '✅' : '❌'}</td>
-                        <td class="status-icon">${row.lunch ? '✅' : '❌'}</td>
-                        <td class="status-icon">${row.dinner ? '✅' : '❌'}</td>
-                    `;
-                    tableBody.appendChild(tr);
-                });
-            } catch (err) {
-                console.error("Error loading table:", err);
-            }
-        }
-
-        // SUBMIT DATA
-        // Corrected Submit Function to match your DB columns
-async function submitAttendance() {
-    const attendanceData = {
-        username: currentUser,
-        date: new Date().toISOString().split('T')[0],
-        breakfast: document.getElementById('breakfast').checked ? 1 : 0, // Saves as 1 or 0
-        lunch: document.getElementById('lunch').checked ? 1 : 0,
-        dinner: document.getElementById('dinner').checked ? 1 : 0
-    };
-
-    const response = await fetch('/api/attendance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(attendanceData)
-    });
-
-    if (response.ok) {
-        alert("Success! Check your history below.");
-        loadHistory(); // This will now show the checkmarks correctly
+    if (!isLoggedIn || !currentUser) {
+        window.location.href = "login.html";
+    } else {
+        const userDisplay = document.getElementById('user-display');
+        if (userDisplay) userDisplay.innerText = currentUser;
     }
-}
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = "login.html";
+    // 2. Main Function to Refresh All Data from messpro.db
+    async function updateDashboard() {
+        try {
+            // A. Fetch Stats for the cards (Totaling the 1s)
+            const statsRes = await fetch(`/api/attendance-stats/${currentUser}`);
+            const stats = await statsRes.json();
+            
+            // Map JSON response to your dashboard IDs
+            document.getElementById('b-val').innerText = stats.breakfasts || 0;
+            document.getElementById('l-val').innerText = stats.lunches || 0;
+            document.getElementById('d-val').innerText = stats.dinners || 0;
+            document.getElementById('total-val').innerText = stats.total || 0;
+
+            // B. Fetch History for the table
+            const historyRes = await fetch(`/api/attendance-history/${currentUser}`);
+            const history = await historyRes.json();
+            const tableBody = document.getElementById('attendanceHistoryBody');
+            
+            if (history.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4">No records found.</td></tr>';
+                return;
+            }
+
+            // Render checkmarks based on SQLite 1s and 0s
+            tableBody.innerHTML = history.map(row => `
+                <tr>
+                    <td>${row.date}</td>
+                    <td class="status-icon">${row.breakfast === 1 ? '✅' : '❌'}</td>
+                    <td class="status-icon">${row.lunch === 1 ? '✅' : '❌'}</td>
+                    <td class="status-icon">${row.dinner === 1 ? '✅' : '❌'}</td>
+                </tr>
+            `).join('');
+        } catch (err) {
+            console.error("Dashboard Update Error:", err);
         }
+    }
 
-        // Run when page opens
-        window.onload = loadHistory;
-    </script>
+    // 3. Submit Attendance to messpro.db
+    async function submitAttendance() {
+        const attendanceData = {
+            username: currentUser,
+            date: new Date().toISOString().split('T')[0],
+            breakfast: document.getElementById('breakfast').checked ? 1 : 0,
+            lunch: document.getElementById('lunch').checked ? 1 : 0,
+            dinner: document.getElementById('dinner').checked ? 1 : 0
+        };
+
+        const response = await fetch('/api/attendance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(attendanceData)
+        });
+
+        if (response.ok) {
+            alert("Success! Your stats and history are updating.");
+            updateDashboard(); // Refreshes both cards and table
+        }
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+    }
+
+    // Run update on load
+    window.onload = updateDashboard;
+</script>
 </body>
 </html>

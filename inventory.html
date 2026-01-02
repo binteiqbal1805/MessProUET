@@ -73,19 +73,32 @@
 </div>
 
 <script>
+// 1. Fetch Inventory from SQLite
 async function loadInventory() {
-    const res = await fetch('/api/inventory');
-    const data = await res.json();
-    const body = document.getElementById('inventoryBody');
-    body.innerHTML = data.map(item => `
-        <tr style="border-bottom: 1px solid #1a2635;">
-            <td style="padding: 15px;">${item.item_name}</td>
-            <td style="padding: 15px;"><span style="color: ${item.quantity < 10 ? '#ff4d4d' : '#00ff88'}">${item.quantity} ${item.unit}</span></td>
-            <td style="padding: 15px; color: #718096; font-size: 0.8rem;">${new Date(item.last_updated).toLocaleString()}</td>
-        </tr>
-    `).join('');
+    try {
+        const res = await fetch('/api/inventory');
+        const data = await res.json();
+        const body = document.getElementById('inventoryBody');
+        
+        body.innerHTML = data.map(item => `
+            <tr style="border-bottom: 1px solid #1a2635;">
+                <td style="padding: 15px;">${item.item_name}</td>
+                <td style="padding: 15px;">
+                    <span style="color: ${item.quantity < 10 ? '#ff4d4d' : '#00ff88'}">
+                        ${item.quantity} ${item.unit}
+                    </span>
+                </td>
+                <td style="padding: 15px; color: #718096; font-size: 0.8rem;">
+                    ${new Date(item.last_updated).toLocaleString()}
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error("Error loading inventory:", err);
+    }
 }
 
+// 2. Update Stock in messpro.db
 async function updateInventory() {
     const payload = {
         item_name: document.getElementById('itemName').value,
@@ -100,43 +113,14 @@ async function updateInventory() {
     });
 
     if (res.ok) {
-        loadInventory();
+        alert("Inventory Updated!");
+        loadInventory(); // Refresh the table
         document.getElementById('itemName').value = '';
         document.getElementById('itemQty').value = '';
     }
 }
 
 window.onload = loadInventory;
-app.get('/api/admin/generate-bill/:username', async (req, res) => {
-    const { username } = req.params;
-    const { month } = req.query; // Format: YYYY-MM
-    
-    try {
-        const result = await pool.query(`
-            SELECT 
-                u.name, u.plan_type,
-                SUM(a.breakfast) as b_total,
-                SUM(a.lunch) as l_total,
-                SUM(a.dinner) as d_total
-            FROM users u
-            LEFT JOIN attendance a ON u.username = a.username
-            WHERE u.username = $1 AND a.date LIKE $2
-            GROUP BY u.name, u.plan_type
-        `, [username, `${month}%`]);
-
-        if (result.rows.length === 0) return res.status(404).json({ message: "No data found" });
-
-        const data = result.rows[0];
-        // Example rates: B=30, L=50, D=50
-        const totalAmount = (data.b_total * 30) + (data.l_total * 50) + (data.d_total * 50);
-
-        res.json({
-            ...data,
-            totalAmount,
-            month
-        });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
 </script>
 </body>
 </html>

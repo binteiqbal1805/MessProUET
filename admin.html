@@ -70,17 +70,25 @@
 <script>
 let allActivityData = []; 
 
+// 1. Load Data from SQLite
 async function loadDashboard() {
-    const res = await fetch('/api/admin/activity');
-    allActivityData = await res.json();
-    renderTable(allActivityData); // Show all initially
-    updateStats();
+    try {
+        const res = await fetch('/api/admin/activity');
+        allActivityData = await res.json();
+        
+        // Render the full table and update stats
+        renderTable(allActivityData); 
+        updateStats();
+    } catch (err) {
+        console.error("Failed to load admin data from messpro.db:", err);
+    }
 }
 
+// 2. Filter Logic for Search Bar
 function filterActivity() {
     const query = document.getElementById('studentSearch').value.toLowerCase();
     
-    // Filters through the actual database rows for student101
+    // Filters through the username (student101) or full_name columns
     const filtered = allActivityData.filter(item => 
         item.username.toLowerCase().includes(query) || 
         (item.name && item.name.toLowerCase().includes(query))
@@ -89,34 +97,38 @@ function filterActivity() {
     renderTable(filtered);
 }
 
+// 3. Render Table Rows
 function renderTable(data) {
     const body = document.getElementById('activity-body');
     body.innerHTML = '';
 
     if (data.length === 0) {
-        body.innerHTML = '<tr><td colspan="4" class="no-data">No results found.</td></tr>';
+        body.innerHTML = '<tr><td colspan="4" class="no-data">No results found in messpro.db.</td></tr>';
         return;
     }
 
     data.forEach(row => {
+        // Displays the date and meal string (B, L, D) stored in your SQLite file
         body.innerHTML += `
             <tr>
                 <td><strong>${row.username}</strong></td>
                 <td>${row.name || 'Student'}</td>
                 <td>${row.date}</td>
-                <td><span class="meal-pill">${row.last_action || 'N/A'}</span></td>
+                <td><span class="meal-pill">${row.last_action || 'None'}</span></td>
             </tr>`;
     });
 }
 
+// 4. Update Stats Cards
 function updateStats() {
-    // Correctly updates Registered Students count
+    // Counts unique usernames in the attendance/users table
     const count = new Set(allActivityData.map(s => s.username)).size;
-    document.getElementById('stat-students').innerText = count;
+    const studentStat = document.getElementById('stat-students');
+    if (studentStat) studentStat.innerText = count;
 }
 
+// Run when the admin panel opens
 window.onload = loadDashboard;
-    
 </script>
 </body>
 </html>
