@@ -93,27 +93,25 @@ function searchStudents() {
     }
 
     // 2. Add Student Logic
-    async function showAddStudentModal() {
-        const username = prompt("Enter Student ID:");
-        const fullName = prompt("Enter Full Name:");
-        
-        if(!username) return;
+    async function addNewStudent() {
+    const studentData = {
+        username: document.getElementById('newID').value,
+        name: document.getElementById('newName').value,
+        room_no: document.getElementById('newRoom').value,
+        plan_type: document.getElementById('newPlan').value
+    };
 
-        const res = await fetch('/api/admin/add-student', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ username, fullName })
-        });
-        
-        if(res.ok) {
-            alert("✅ Student added successfully!");
-            // CRITICAL: This line refreshes the table so the new row appears
-            await loadStudents(); 
-        } else {
-            const err = await res.json();
-            alert("❌ Error: " + err.error);
-        }
+    const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(studentData)
+    });
+
+    if (res.ok) {
+        alert("Student added permanently!");
+        location.reload(); // Data stays because it's in Postgres!
     }
+}
 </script>
 </body>
 </html>

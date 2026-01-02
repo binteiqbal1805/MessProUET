@@ -72,46 +72,47 @@
         </table>
     </div>
 </main>
+<div class="billing-container" style="padding: 30px; background: #050a10; color: white; min-height: 100vh;">
+    <h2 style="color: #00ff88;">💰 Fee Management</h2>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <input type="text" id="billUser" placeholder="Student ID (student101)" style="padding: 10px; border-radius: 5px; background: #1a2635; color: white; border: 1px solid #00ff88;">
+        <input type="month" id="billMonth" style="padding: 10px; border-radius: 5px; background: #1a2635; color: white; border: 1px solid #00ff88;">
+        <button onclick="generateBill()" style="padding: 10px 20px; background: #00ff88; color: black; font-weight: bold; border: none; border-radius: 5px; cursor: pointer;">Calculate Bill</button>
+    </div>
+
+    <div id="invoiceBox" style="display: none; background: white; color: black; padding: 40px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h1 style="text-align: center; color: #333;">MessPro Invoice</h1>
+        <hr>
+        <p><strong>Student Name:</strong> <span id="invName"></span></p>
+        <p><strong>Month:</strong> <span id="invMonth"></span></p>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <tr style="border-bottom: 1px solid #ddd;"><td>Breakfasts</td> <td id="invB"></td></tr>
+            <tr style="border-bottom: 1px solid #ddd;"><td>Lunches</td> <td id="invL"></td></tr>
+            <tr style="border-bottom: 1px solid #ddd;"><td>Dinners</td> <td id="invD"></td></tr>
+            <tr style="font-weight: bold; font-size: 1.2rem;"><td>Total Due</td> <td id="invTotal"></td></tr>
+        </table>
+        <button onclick="window.print()" style="margin-top: 20px; width: 100%; padding: 10px; background: #333; color: white; border: none; cursor: pointer;">Print Receipt</button>
+    </div>
+</div>
 
 <script>
-    const user = localStorage.getItem('loggedUser');
-    const MEAL_RATE = 30;
-
-    window.onload = async () => {
-        if (!user) return window.location.href = "login.html";
-        
-        try {
-            const res = await fetch(`/api/attendance-history/${user}`);
-            const data = await res.json();
-            
-            let meals = 0;
-            data.forEach(d => { if(d.breakfast) meals++; if(d.lunch) meals++; if(d.dinner) meals++; });
-
-            const total = meals * MEAL_RATE;
-            document.getElementById('totalAmount').innerText = total.toLocaleString();
-            
-            const historyBody = document.getElementById('billingHistoryBody');
-            historyBody.innerHTML = `
-                <tr>
-                    <td>December</td>
-                    <td>${meals}</td>
-                    <td>0</td>
-                    <td>${total}</td>
-                    <td class="status-unpaid" id="rowStatus">Unpaid</td>
-                </tr>
-                <tr><td>November</td><td>88</td><td>150</td><td>2,350</td><td class="status-paid">Paid</td></tr>
-                <tr><td>October</td><td>90</td><td>0</td><td>2,200</td><td class="status-paid">Paid</td></tr>
-            `;
-        } catch (e) { console.error(e); }
-    };
-
-    function payBill() {
-        alert("Payment Successful!");
-        document.getElementById('statusLabel').innerText = "Paid";
-        document.getElementById('statusLabel').className = "value status-paid-text";
-        document.getElementById('rowStatus').innerText = "Paid";
-        document.getElementById('rowStatus').className = "status-paid";
-    }
+async function generateBill() {
+    const user = document.getElementById('billUser').value;
+    const month = document.getElementById('billMonth').value;
+    
+    const res = await fetch(`/api/admin/generate-bill/${user}?month=${month}`);
+    if (!res.ok) return alert("Student not found or no attendance data!");
+    
+    const data = await res.json();
+    document.getElementById('invoiceBox').style.display = 'block';
+    document.getElementById('invName').innerText = data.name;
+    document.getElementById('invMonth').innerText = data.month;
+    document.getElementById('invB').innerText = data.b_total;
+    document.getElementById('invL').innerText = data.l_total;
+    document.getElementById('invD').innerText = data.d_total;
+    document.getElementById('invTotal').innerText = "₹" + data.totalAmount;
+}
 </script>
 </body>
 </html>

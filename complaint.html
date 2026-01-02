@@ -71,45 +71,24 @@
 </main>
 
 <script>
-    async function sendComplaint() {
-        const loggedUser = localStorage.getItem('loggedUser') || "Guest";
-        const subject = document.getElementById('subject').value;
-        const message = document.getElementById('desc').value;
-        // Get selected category icon/text
-        const category = document.querySelector('input[name="cat"]:checked').value;
+    async function submitComplaint() {
+    const complaint = {
+        username: localStorage.getItem('loggedUser'),
+        type: document.getElementById('type').value,
+        category: document.getElementById('category').value,
+        subject: document.getElementById('subject').value,
+        message: document.getElementById('message').value,
+        date: new Date().toISOString().split('T')[0]
+    };
 
-        if (!subject || !message) {
-            alert("Plz fill out all field");
-            return;
-        }
+    const res = await fetch('/api/submit-issue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(complaint)
+    });
 
-        const data = {
-            username: loggedUser,
-            type: "Complaint",
-            category: category,
-            subject: subject,
-            message: message,
-            date: new Date().toISOString().split('T')[0]
-        };
-
-        try {
-            const res = await fetch('/api/submit-issue', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-
-            if (res.ok) {
-                alert("✅ Complaint submitted successfully!");
-                // Clear the form fields
-                document.getElementById('subject').value = "";
-                document.getElementById('desc').value = "";
-            } else {
-                const errorText = await res.json();
-                alert("❌ Server Error: " + errorText.error);
-            }
-        } catch (err) {
-            alert("❌ Connection failed. Ensure node server.js is running.");
-        }
+    if (res.ok) {
+        alert("Complaint filed and saved!");
     }
+}
 </script>
