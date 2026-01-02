@@ -1,15 +1,14 @@
 const express = require('express');
-const path = require('path'); // ONLY KEEP THIS ONE LINE
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 const app = express();
 
-// This matches your GitHub folder 'Public' exactly
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'Public')));
 
 app.get('/index3.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'Public', 'index3.html'));
 });
-
-
 
 
 
