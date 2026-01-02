@@ -133,11 +133,20 @@ app.get('/api/admin/stats', (req, res) => {
 
 // 9. Admin: Recent Activity (Combines meal columns into one string)
 app.get('/api/admin/activity', (req, res) => {
-    const sql = `SELECT username, date, 
-        (CASE WHEN breakfast=1 THEN 'B ' ELSE '' END || 
-         CASE WHEN lunch=1 THEN 'L ' ELSE '' END || 
-         CASE WHEN dinner=1 THEN 'D' ELSE '' END) as last_action
-        FROM attendance ORDER BY id DESC LIMIT 5`;
+    // This query JOINS the users table with attendance records
+    const sql = `
+        SELECT 
+            u.username, 
+            u.name, 
+            a.date, 
+            (CASE WHEN a.breakfast = 1 THEN 'B ' ELSE '' END || 
+             CASE WHEN a.lunch = 1 THEN 'L ' ELSE '' END || 
+             CASE WHEN a.dinner = 1 THEN 'D' ELSE '' END) AS last_action
+        FROM users u
+        LEFT JOIN attendance a ON u.username = a.username
+        ORDER BY a.date DESC;
+    `;
+
     db.all(sql, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
