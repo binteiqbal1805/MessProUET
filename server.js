@@ -4,10 +4,10 @@ const path = require('path');
 const app = express();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'Public')));
+app.use(express.static(__dirname));
 
 app.get('/index3.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Public', 'index3.html'));
+    res.sendFile(path.join(__dirname, 'index3.html'));
 });
 
 
