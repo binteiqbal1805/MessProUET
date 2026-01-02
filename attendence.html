@@ -171,104 +171,89 @@
             </table>
         </div>
     </div>
-    <div class="stats-grid">
-    <div class="stat-card">
-        <h3>Breakfasts</h3>
-        <div class="value" id="b-val">0</div>
-    </div>
-    <div class="stat-card">
-        <h3>Lunches</h3>
-        <div class="value" id="l-val">0</div>
-    </div>
-    <div class="stat-card">
-        <h3>Dinners</h3>
-        <div class="value" id="d-val">0</div>
-    </div>
-    <div class="stat-card" style="background: #27ae60; color: white;">
-        <h3>Total Meals</h3>
-        <div class="value" id="total-val">0</div>
-    </div>
+    
 </div>
 
 <script>
-    // 1. Initial Identity & Security Check
-    const currentUser = localStorage.getItem('loggedUser');
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
+        // Check if user is logged in
+        const currentUser = localStorage.getItem('loggedUser');
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
 
-    if (!isLoggedIn || !currentUser) {
-        window.location.href = "login.html";
-    } else {
-        const userDisplay = document.getElementById('user-display');
-        if (userDisplay) userDisplay.innerText = currentUser;
-    }
+        if (!isLoggedIn || !currentUser) {
+            window.location.href = "login.html";
+        } else {
+            document.getElementById('user-display').innerText = currentUser;
+        }
 
-    // 2. Main Function to Refresh All Data from messpro.db
-    async function updateDashboard() {
-        try {
-            // A. Fetch Stats for the cards (Totaling the 1s)
-            const statsRes = await fetch(`/api/attendance-stats/${currentUser}`);
-            const stats = await statsRes.json();
-            
-            // Map JSON response to your dashboard IDs
-            // Change this inside updateDashboard()
-            document.getElementById('b-val').innerText = stats.breakfast || 0;
-            document.getElementById('l-val').innerText = stats.lunch || 0;
-            document.getElementById('d-val').innerText = stats.dinner || 0;
-            document.getElementById('total-val').innerText = (stats.breakfast + stats.lunch + stats.dinner) || 0;
+        // LOAD TABLE DATA
+        async function loadHistory() {
+            try {
+                const response = await fetch(`/api/attendance-history/${currentUser}`);
+                const data = await response.json();
+                const tableBody = document.getElementById('attendanceHistoryBody');
+                
+                tableBody.innerHTML = ''; // Clear table
 
-            // B. Fetch History for the table
-            const historyRes = await fetch(`/api/attendance-history/${currentUser}`);
-            const history = await historyRes.json();
-            const tableBody = document.getElementById('attendanceHistoryBody');
-            
-            if (history.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4">No records found.</td></tr>';
-                return;
+                if (data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4">No records found for this week.</td></tr>';
+                    return;
+                }
+
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${row.date}</td>
+                        <td class="status-icon">${row.breakfast ? '✅' : '❌'}</td>
+                        <td class="status-icon">${row.lunch ? '✅' : '❌'}</td>
+                        <td class="status-icon">${row.dinner ? '✅' : '❌'}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error("Error loading table:", err);
             }
-
-            // Render checkmarks based on SQLite 1s and 0s
-            tableBody.innerHTML = history.map(row => `
-                <tr>
-                    <td>${row.date}</td>
-                    <td class="status-icon">${row.breakfast === 1 ? '✅' : '❌'}</td>
-                    <td class="status-icon">${row.lunch === 1 ? '✅' : '❌'}</td>
-                    <td class="status-icon">${row.dinner === 1 ? '✅' : '❌'}</td>
-                </tr>
-            `).join('');
-        } catch (err) {
-            console.error("Dashboard Update Error:", err);
         }
-    }
 
-    // 3. Submit Attendance to messpro.db
-    async function submitAttendance() {
-        const attendanceData = {
-            username: currentUser,
-            date: new Date().toISOString().split('T')[0],
-            breakfast: document.getElementById('breakfast').checked ? 1 : 0,
-            lunch: document.getElementById('lunch').checked ? 1 : 0,
-            dinner: document.getElementById('dinner').checked ? 1 : 0
-        };
+        // SUBMIT DATA
+        async function submitAttendance() {
+            const data = {
+                username: currentUser,
+                date: new Date().toISOString().split('T')[0],
+                breakfast: document.getElementById('breakfast').checked ? 1 : 0,
+                lunch: document.getElementById('lunch').checked ? 1 : 0,
+                dinner: document.getElementById('dinner').checked ? 1 : 0
+            };
 
-        const response = await fetch('/api/attendance', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(attendanceData)
-        });
+            try {
+                const response = await fetch('/api/attendance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
 
-        if (response.ok) {
-            alert("Success! Your stats and history are updating.");
-            updateDashboard(); // Refreshes both cards and table
+                if (response.ok) {
+                    alert("✅ Attendance saved successfully!");
+                    // Uncheck boxes for next time
+                    document.getElementById('breakfast').checked = false;
+                    document.getElementById('lunch').checked = false;
+                    document.getElementById('dinner').checked = false;
+                    // REFRESH TABLE IMMEDIATELY
+                    loadHistory();
+                } else {
+                    alert("❌ Error saving data. Try again.");
+                }
+            } catch (error) {
+                alert("❌ Server connection error.");
+            }
         }
-    }
 
-    function logout() {
-        localStorage.clear();
-        window.location.href = "login.html";
-    }
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
 
-    // Run update on load
-    window.onload = updateDashboard;
-</script>
+        // Run when page opens
+        window.onload = loadHistory;
+    </script>
 </body>
 </html>
