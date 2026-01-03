@@ -131,6 +131,24 @@ window.onload = async () => {
         document.querySelector('.activity-table-body').innerHTML = '<tr><td colspan="4">No data found in SQLite pantry.</td></tr>';
     }
 };
+async function loadDashboardStats() {
+    try {
+        const response = await fetch('/api/admin/dashboard-stats');
+        const data = await response.json();
+
+        // Update the HTML elements (Make sure these IDs match your HTML)
+        document.getElementById('total-students').innerText = data.totalStudents;
+        document.getElementById('meals-today').innerText = data.mealsToday;
+        document.getElementById('pending-complaints').innerText = data.pendingComplaints;
+        document.getElementById('monthly-revenue').innerText = `₹ ${data.monthlyRevenue}`;
+        
+    } catch (error) {
+        console.error("Failed to load stats:", error);
+    }
+}
+
+// Call the function when the page loads
+window.onload = loadDashboardStats;
 
 </script>
 </body>
