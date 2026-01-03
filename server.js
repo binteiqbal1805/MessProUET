@@ -7,6 +7,14 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 const db = new sqlite3.Database('./messpro.db');
+db.serialize(() => {
+    // DROP the old tables so they can be recreated with the new 'name' column
+    db.run("DROP TABLE IF EXISTS users");
+    db.run("DROP TABLE IF EXISTS attendance");
+    
+    // Now your existing CREATE TABLE code will work perfectly
+    db.run(`CREATE TABLE users (username TEXT PRIMARY KEY, password TEXT, name TEXT, role TEXT DEFAULT 'student')`);
+});
 
 db.serialize(() => {
     // 1. Core Users Table
