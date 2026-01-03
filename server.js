@@ -94,6 +94,8 @@ app.get('/api/admin/stats', isAdmin, (req, res) => {
 db.serialize(() => {
     // Standard User Table
     db.run(`CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT, name TEXT, role TEXT DEFAULT 'student')`);
+    db.run(`INSERT OR IGNORE INTO users (username, password, role, name) 
+        VALUES ('admin', 'admin123', 'admin', 'System Admin')`);
     
     // NEW: Login Activity Table to store dynamic login data
     db.run(`CREATE TABLE IF NOT EXISTS login_activity (
@@ -101,8 +103,7 @@ db.serialize(() => {
         username TEXT, 
         login_time DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
-    db.run(`INSERT OR IGNORE INTO users (username, password, role, name) 
-            VALUES ('admin', 'admin123', 'admin', 'System Admin')`);
+    
 });
 
 // MODIFIED LOGIN ROUTE: Now stores data on every entry
