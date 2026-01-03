@@ -40,6 +40,47 @@
         <thead><tr><th>Student ID</th><th>Name</th><th>Date</th><th>Meals Logged</th></tr></thead>
         <tbody id="activity-list"></tbody>
     </table>
+    <div class="card">
+    <h3 style="color: var(--yellow)"><i class="fas fa-sign-in-alt"></i> Recent User Logins</h3>
+    <table id="loginTable">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Login Time</th>
+            </tr>
+        </thead>
+        <tbody id="loginBody">
+            </tbody>
+    </table>
+</div>
+
+<script>
+async function loadLoginHistory() {
+    const adminId = localStorage.getItem('loggedUser');
+    const response = await fetch('/api/admin/all-logins', {
+        headers: { 'admin-id': adminId }
+    });
+    
+    const logins = await response.json();
+    const body = document.getElementById('loginBody');
+    
+    // Display the dynamic data
+    body.innerHTML = logins.map(log => `
+        <tr>
+            <td><strong>${log.username}</strong></td>
+            <td>${log.name || 'User'}</td>
+            <td>${new Date(log.login_time).toLocaleString()}</td>
+        </tr>
+    `).join('');
+}
+
+// Refresh this data every time the admin page is opened
+window.onload = () => {
+    checkAdminAccess(); // Your security check
+    loadLoginHistory();
+};
+</script>
 
     <script>
         let fullActivityData = [];
@@ -86,5 +127,28 @@
 
         window.onload = initDashboard;
     </script>
+<script>
+    // 1. Immediate Security Check
+    const loggedRole = localStorage.getItem('role');
+    const loggedUser = localStorage.getItem('loggedUser');
+
+    if (!loggedUser || loggedRole !== 'admin') {
+        alert("Unauthorized access! Redirecting to login...");
+        window.location.href = 'login.html';
+    }
+
+    // 2. Modified Data Fetching
+    async function initAdmin() {
+        const res = await fetch('/api/admin/stats', {
+            headers: { 'username': loggedUser } // Sending ID for backend verification
+        });
+        
+        if (res.status === 403) {
+            window.location.href = 'login.html';
+            return;
+        }
+        // ... rest of your initAdmin logic ...
+    }
+</script>    
 </body>
 </html>
