@@ -219,6 +219,33 @@ app.use(express.static(path.join(__dirname)));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html')); 
 });
+// Get Dashboard Statistics
+app.get('/api/dashboard-stats', (req, res) => {
+    const stats = {};
+    
+    // Use a Promise-based approach or nested callbacks to gather multiple counts
+    db.get("SELECT COUNT(*) as count FROM students", (err, row) => {
+        stats.totalStudents = row ? row.count : 0;
+        
+        db.get("SELECT COUNT(*) as count FROM attendance WHERE date = date('now')", (err, row) => {
+            stats.mealsToday = row ? row.count : 0;
+            
+            db.get("SELECT COUNT(*) as count FROM complaints WHERE status = 'pending'", (err, row) => {
+                stats.pendingComplaints = row ? row.count : 0;
+                res.json(stats);
+            });
+        });
+    });
+});
+
+// Get Recent Attendance for the table
+app.get('/api/recent-activity', (req, res) => {
+    db.all("SELECT username, date, meal_type, status FROM attendance ORDER BY id DESC LIMIT 5", (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
 const port = process.env.PORT || 3000;
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`);
