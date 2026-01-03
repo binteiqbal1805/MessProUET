@@ -11,8 +11,8 @@ const db = new sqlite3.Database('./messpro.db');
 
 db.serialize(() => {
     
-     db.run("DROP TABLE IF EXISTS users");
-     db.run("DROP TABLE IF EXISTS attendance");
+    //db.run("DROP TABLE IF EXISTS users");
+     //db.run("DROP TABLE IF EXISTS attendance");
 
     db.run(`CREATE TABLE IF NOT EXISTS users (
         username TEXT PRIMARY KEY, 
@@ -103,5 +103,5 @@ app.get('/api/admin/generate-bill/:username', (req, res) => {
         res.json(row);
     });
 });
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Admin Server Live on ${PORT}`));
