@@ -135,7 +135,7 @@ app.delete('/api/admin/users/:username', (req, res) => {
     `;
 
     // The '%' allows us to match any date starting with the chosen month (e.g., '2025-12%')
-    db.get(sql, [username, `${month}%`], (err, row) => {
+    db.get(sql, [username,month + '%' ], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ message: "No data found" });
 
