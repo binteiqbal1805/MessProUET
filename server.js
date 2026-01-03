@@ -10,7 +10,10 @@ const db = new sqlite3.Database('./messpro.db');
 
 
 db.serialize(() => {
-    // 1. Core Users Table
+    
+     db.run("DROP TABLE IF EXISTS users");
+     db.run("DROP TABLE IF EXISTS attendance");
+
     db.run(`CREATE TABLE IF NOT EXISTS users (
         username TEXT PRIMARY KEY, 
         password TEXT, 
@@ -18,7 +21,6 @@ db.serialize(() => {
         role TEXT DEFAULT 'student'
     )`);
 
-    // 2. Attendance Table (Matches your frontend image_cf672a)
     db.run(`CREATE TABLE IF NOT EXISTS attendance (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT,
@@ -28,10 +30,10 @@ db.serialize(() => {
         dinner INTEGER DEFAULT 0
     )`);
 
-    // Ensure Admin exists
+    // Default Admin
     db.run(`INSERT OR IGNORE INTO users (username, password, role, name) 
             VALUES ('admin', 'admin123', 'admin', 'System Admin')`);
-});
+});;
 
 // --- ADMIN: FETCH ALL ATTENDANCE HISTORY ---
 app.get('/api/admin/attendance-history', (req, res) => {
@@ -84,6 +86,21 @@ app.get('/api/admin/attendance-history', (req, res) => {
     db.all(sql, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
+    });
+});
+// FIXED: Move your billing logic into this route to define 'username'
+app.get('/api/admin/generate-bill/:username', (req, res) => {
+    const { username } = req.params; // Now username is defined!
+    const { month } = req.query;
+    
+    const sql = `SELECT u.name, SUM(a.breakfast) as b, SUM(a.lunch) as l, SUM(a.dinner) as d 
+                 FROM users u 
+                 LEFT JOIN attendance a ON u.username = a.username 
+                 WHERE u.username = ? AND a.date LIKE ?`;
+                 
+    db.get(sql, [username, month + '%'], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(row);
     });
 });
 const PORT = process.env.PORT || 10000;
