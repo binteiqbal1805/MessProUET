@@ -17,13 +17,15 @@ const db = new sqlite3.Database('./messpro.db');
 
 // Initialize tables to match your Viewer
 db.serialize(() => {
+
     db.run(`CREATE TABLE IF NOT EXISTS users (
         username TEXT PRIMARY KEY, 
-        password TEXT, 
-        date TEXT,
-        role TEXT DEFAULT 'student',
-        full_name TEXT
-    )`);
+        password TEXT DEFAULT '1234', 
+        name TEXT, 
+        room_no TEXT, 
+        plan_type TEXT, 
+        role TEXT DEFAULT 'student'
+    )`)
 
     db.run(`CREATE TABLE IF NOT EXISTS attendance (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -78,29 +80,46 @@ app.get('/api/attendance-stats/:username', (req, res) => {
     });
 });
 
-// ADMIN STATS: Counts students and complaints
+// 1. Get Dashboard Stats (Counts)
+app.get('/api/admin/stats', (req, res) => {
+    const sql = `SELECT 
+        (SELECT COUNT(*) FROM users WHERE role = 'student') as totalStudents,
+        (SELECT COUNT(*) FROM attendance WHERE date = date('now')) as mealsToday,
+        (SELECT COUNT(*) FROM issues WHERE status = 'Pending') as activeComplaints`;
+    db.get(sql, [], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(row || { totalStudents: 0, mealsToday: 0, activeComplaints: 0 });
+    });
+});
+// 2. Get Student Activity (Joins users and attendance)
 app.get('/api/admin/activity', (req, res) => {
-    db.all("SELECT * FROM activity", [], (err, rows) => {
+    const sql = `SELECT a.username, u.name, a.date, 
+                (CASE WHEN a.breakfast=1 THEN 'B ' ELSE '' END || 
+                 CASE WHEN a.lunch=1 THEN 'L ' ELSE '' END || 
+                 CASE WHEN a.dinner=1 THEN 'D' ELSE '' END) as last_action
+                 FROM attendance a
+                 JOIN users u ON a.username = u.username
+                 ORDER BY a.date DESC`;
+    db.all(sql, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
-})
-// Submit Complaint to SQLite
-app.post('/api/submit-issue', (req, res) => {
-    const { username, type, category, subject, message, date } = req.body;
-    const sql = `INSERT INTO issues (username, type, category, subject, message, date) VALUES (?, ?, ?, ?, ?, ?)`;
-    
-    db.run(sql, [username, type, category, subject, message, date], function(err) {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        // Returns the ID of the new row
-        res.json({ message: "success", id: this.lastID });
+});
+app.get('/api/admin/users', (req, res) => {
+    db.all("SELECT * FROM users WHERE role = 'student'", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
     });
 });
-app.get('/api/admin/generate-bill/:username', (req, res) => {
-    const { username } = req.params;
-    const { month } = req.query; // Comes from the <input type="month"> (YYYY-MM)
+
+// 4. Delete Student
+app.delete('/api/admin/users/:username', (req, res) => {
+    db.run("DELETE FROM users WHERE username = ?", [req.params.username], (err) => {
+        if (err) return res.status(500).send(err.message);
+        res.status(200).send("Deleted");
+    });
+});
+
 
     // Query to join users (for the name) and attendance (for the counts)
     const sql = `
@@ -135,7 +154,7 @@ app.get('/api/admin/generate-bill/:username', (req, res) => {
             totalAmount: totalAmount
         });
     });
-});
+
 // 1. Initialize the Inventory Table
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS inventory (
