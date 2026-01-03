@@ -2,153 +2,135 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MessPro Admin | Central Command</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { --bg: #050a10; --card: #0d1621; --yellow: #ffcc00; --text: #ffffff; --dim: #718096; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 20px; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #1a2635; border-left: 5px solid var(--yellow); }
-        .stat-card h3 { color: var(--dim); margin: 0; font-size: 0.8rem; text-transform: uppercase; }
-        .stat-card .value { font-size: 2.2rem; color: var(--yellow); font-weight: 800; margin-top: 10px; }
-
-        .search-container { background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 25px; display: flex; align-items: center; border: 1px solid #1a2635; }
-        .search-input { flex: 1; background: transparent; border: none; color: white; padding: 10px; font-size: 1rem; }
-        .search-input:focus { outline: none; }
-
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; }
-        th { text-align: left; padding: 15px; background: #1a2635; color: var(--yellow); }
-        td { padding: 15px; border-bottom: 1px solid #1a2635; }
-        .meal-pill { background: rgba(255, 204, 0, 0.15); color: var(--yellow); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessPro Admin - Dashboard</title>
+    <link rel="stylesheet" href="style3.css"> 
+    <link rel="stylesheet" href="admin.css">
 </head>
 <body>
+    <nav class="admin-nav">
+        <div class="logo" style="color: var(--cyan); font-weight: 800; font-size: 1.5rem;">
+            MessPro Admin
+        </div>
+        
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="admin.html" class="active">Dashboard</a>
+            <a href="users.html">User Management</a>
+            <a href="inventory.html">Inventory</a>
+        </div>
 
-    <div class="stats-grid">
-        <div class="stat-card"><h3>Registered Students</h3><div class="value" id="stat-students">0</div></div>
-        <div class="stat-card"><h3>Meals Today</h3><div class="value" id="stat-meals">0</div></div>
-        <div class="stat-card"><h3>Active Complaints</h3><div class="value" id="stat-issues">0</div></div>
+        <button class="logout-btn" onclick="adminLogout()">Admin Logout</button>
+        
+    </nav>
+
+
+<main class="content-container">
+    <div class="summary-grid">
+        <div class="admin-card">
+            <div class="label">Total Students</div>
+            <div id="totalStudents" class="value cyan-text">...</div>
+        </div>
+        <div class="admin-card">
+            <div class="label">Meals Served (Today)</div>
+            <div id="mealsToday" class="value cyan-text">...</div>
+        </div>
+        <div class="admin-card">
+            <div class="label">Pending Complaints</div>
+            <div id="pendingComplaints" class="value red-text">...</div>
+        </div>
+        <div class="admin-card">
+            <div class="label">Monthly Revenue</div>
+            <div id="revenue" class="value cyan-text">₹ 0</div>
+        </div>
     </div>
 
-    <div class="search-container">
-        <i class="fas fa-search" style="color:var(--yellow); margin-right:10px;"></i>
-        <input type="text" id="globalSearch" class="search-input" placeholder="Search by Student ID, Name, or Date..." onkeyup="filterTable()">
-    </div>
-
-    <table>
-        <thead><tr><th>Student ID</th><th>Name</th><th>Date</th><th>Meals Logged</th></tr></thead>
-        <tbody id="activity-list"></tbody>
-    </table>
-    <div class="card">
-    <h3 style="color: var(--yellow)"><i class="fas fa-sign-in-alt"></i> Recent User Logins</h3>
-    <table id="loginTable">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Name</th>
-                <th>Login Time</th>
-            </tr>
-        </thead>
-        <tbody id="loginBody">
-            </tbody>
-    </table>
-</div>
+    <section class="activity-section">
+        <h2 class="section-title">Recent Student Activity</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Last Action</th>
+                </tr>
+            </thead>
+            <tbody id="activityBody">
+                </tbody>
+        </table>
+    </section>
+</main>
 
 <script>
-async function loadLoginHistory() {
-    const adminId = localStorage.getItem('loggedUser');
-    const response = await fetch('/api/admin/all-logins', {
-        headers: { 'admin-id': adminId }
-    });
-    
-    const logins = await response.json();
-    const body = document.getElementById('loginBody');
-    
-    // Display the dynamic data
-    body.innerHTML = logins.map(log => `
-        <tr>
-            <td><strong>${log.username}</strong></td>
-            <td>${log.name || 'User'}</td>
-            <td>${new Date(log.login_time).toLocaleString()}</td>
-        </tr>
-    `).join('');
-}
+    window.onload = async () => {
+        try {
+            // 1. Fetch Dashboard Stats
+            const statsRes = await fetch('/api/admin/stats');
+            const stats = await statsRes.json();
+            
+            document.getElementById('totalStudents').innerText = stats.totalStudents;
+            document.getElementById('mealsToday').innerText = stats.mealsToday;
+            document.getElementById('pendingComplaints').innerText = stats.complaints;
+            document.getElementById('revenue').innerText = `₹ ${(stats.mealsMonth * 30) / 1000}k`;
 
-// Refresh this data every time the admin page is opened
-window.onload = () => {
-    checkAdminAccess(); // Your security check
-    loadLoginHistory();
-};
-</script>
-
-    <script>
-        let fullActivityData = [];
-
-        async function initDashboard() {
-            try {
-                // Fetch stats (Fixes the "0" issue in image_c32f6e)
-                const stats = await (await fetch('/api/admin/stats')).json();
-                document.getElementById('stat-students').innerText = stats.totalStudents;
-                document.getElementById('stat-meals').innerText = stats.mealsToday;
-                document.getElementById('stat-issues').innerText = stats.activeComplaints;
-
-                // Fetch activity for table (Fixes image_c32f6e table)
-                const res = await fetch('/api/admin/activity');
-                fullActivityData = await res.json();
-                renderTable(fullActivityData);
-            } catch (err) { console.error("Admin Load Error:", err); }
-        }
-
-        function renderTable(data) {
-            const body = document.getElementById('activity-list');
-            body.innerHTML = data.map(a => `
+            // 2. Fetch Recent Activity
+            const activityRes = await fetch('/api/admin/activity');
+            const activity = await activityRes.json();
+            const body = document.getElementById('activityBody');
+            
+            body.innerHTML = activity.map(row => `
                 <tr>
-                    <td><strong>#${a.username}</strong></td>
-                    <td>${a.name}</td>
-                    <td>${a.date}</td>
-                    <td><span class="meal-pill">${a.last_action || 'Pending'}</span></td>
+                    <td>#${row.username}</td>
+                    <td>Student User</td>
+                    <td>${row.date}</td>
+                    <td>Marked Attendance</td>
                 </tr>
             `).join('');
-            if (data.length === 0) {
-                body.innerHTML = '<tr><td colspan="4" style="text-align:center;">No matching records found.</td></tr>';
-            }
+        } catch (err) {
+            console.error("Dashboard failed to load:", err);
         }
+    };
 
-        function filterTable() {
-            const q = document.getElementById('globalSearch').value.toLowerCase();
-            const filtered = fullActivityData.filter(item => 
-                item.username.toLowerCase().includes(q) || 
-                item.name.toLowerCase().includes(q) ||
-                item.date.includes(q)
-            );
-            renderTable(filtered);
-        }
-
-        window.onload = initDashboard;
-    </script>
-<script>
-    // 1. Immediate Security Check
-    const loggedRole = localStorage.getItem('role');
-    const loggedUser = localStorage.getItem('loggedUser');
-
-    if (!loggedUser || loggedRole !== 'admin') {
-        alert("Unauthorized access! Redirecting to login...");
-        window.location.href = 'login.html';
+    function adminLogout() {
+        window.location.href = "login.html";
     }
+    function adminLogout() {
+    // 1. Clear any stored login data (like a token or username)
+    localStorage.removeItem('isAdminLoggedIn');
+    sessionStorage.clear();
 
-    // 2. Modified Data Fetching
-    async function initAdmin() {
-        const res = await fetch('/api/admin/stats', {
-            headers: { 'username': loggedUser } // Sending ID for backend verification
-        });
+    // 2. Alert the user (optional)
+    alert("You have been logged out.");
+
+    // 3. Redirect to the login page
+    window.location.href = 'login.html';
+}
+window.onload = async () => {
+    try {
+        const response = await fetch('/api/admin/activity');
+        if (!response.ok) throw new Error("Server Pantry Empty");
         
-        if (res.status === 403) {
-            window.location.href = 'login.html';
-            return;
-        }
-        // ... rest of your initAdmin logic ...
+        const data = await response.json();
+        const tableBody = document.querySelector('.activity-table-body');
+        
+        // Use forEach instead of map for a cleaner table build
+        tableBody.innerHTML = ''; 
+        data.forEach(student => {
+            const row = `<tr>
+                <td>${student.student_id}</td>
+                <td>${student.name}</td>
+                <td>${student.date}</td>
+                <td><span class="fresh-badge">${student.last_action || 'Marked Attendance'}</span></td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+    } catch (error) {
+        console.error("Dashboard failed to load:", error);
+        document.querySelector('.activity-table-body').innerHTML = '<tr><td colspan="4">No data found in SQLite pantry.</td></tr>';
     }
-</script>    
+};
+
+</script>
 </body>
 </html>
