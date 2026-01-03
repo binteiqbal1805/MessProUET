@@ -2,163 +2,89 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MessPro Admin | Command Center</title>
+    <title>MessPro Admin | Central Command</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --bg: #050a10; --card: #0d1621; --yellow: #ffcc00; --text: #ffffff; --dim: #718096; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 50px; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 20px; }
         
-        /* Navbar */
-        .navbar { background: var(--card); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--yellow); position: sticky; top: 0; z-index: 1000; }
-        .logo { color: var(--yellow); font-size: 1.5rem; font-weight: bold; text-decoration: none; }
-        
-        .container { padding: 30px 5%; max-width: 1400px; margin: auto; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #1a2635; border-left: 5px solid var(--yellow); }
+        .stat-card h3 { color: var(--dim); margin: 0; font-size: 0.8rem; text-transform: uppercase; }
+        .stat-card .value { font-size: 2.2rem; color: var(--yellow); font-weight: 800; margin-top: 10px; }
 
-        /* Stats Section */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .stat-card { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #1a2635; position: relative; overflow: hidden; }
-        .stat-card::after { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--yellow); }
-        .stat-card h3 { color: var(--dim); margin: 0; font-size: 0.85rem; letter-spacing: 1px; }
-        .stat-card .value { font-size: 2.2rem; font-weight: 800; margin-top: 10px; color: var(--yellow); }
+        .search-container { background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 25px; display: flex; align-items: center; border: 1px solid #1a2635; }
+        .search-input { flex: 1; background: transparent; border: none; color: white; padding: 10px; font-size: 1rem; }
+        .search-input:focus { outline: none; }
 
-        /* Search & Filters */
-        .search-container { background: var(--card); padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; align-items: center; gap: 15px; border: 1px solid #1a2635; }
-        .search-input { flex: 1; background: #1a2635; border: 1px solid #2d3748; padding: 12px 20px; color: white; border-radius: 8px; font-size: 1rem; }
-        .search-input:focus { outline: none; border-color: var(--yellow); }
-
-        /* Tables */
-        .section-header { margin: 40px 0 20px; display: flex; justify-content: space-between; align-items: center; }
-        .section-title { font-size: 1.3rem; color: var(--yellow); display: flex; align-items: center; gap: 10px; }
-        
-        .table-wrapper { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #1a2635; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 18px; background: #1a2635; color: var(--yellow); font-size: 0.9rem; text-transform: uppercase; }
-        td { padding: 16px; border-bottom: 1px solid #1a2635; font-size: 0.95rem; }
-        tr:hover { background: rgba(255, 204, 0, 0.02); }
-
-        /* Action Buttons */
-        .delete-btn { color: #ff4d4d; border: 1px solid #ff4d4d; background: transparent; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-        .delete-btn:hover { background: #ff4d4d; color: white; }
-        .meal-pill { background: rgba(255, 204, 0, 0.15); color: var(--yellow); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; }
+        th { text-align: left; padding: 15px; background: #1a2635; color: var(--yellow); }
+        td { padding: 15px; border-bottom: 1px solid #1a2635; }
+        .meal-pill { background: rgba(255, 204, 0, 0.15); color: var(--yellow); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <a href="#" class="logo"><i class="fas fa-shield-alt"></i> MessPro Admin</a>
-        <button onclick="logout()" style="background:transparent; border:1px solid #ff4d4d; color:#ff4d4d; padding:8px 20px; border-radius:8px; cursor:pointer;">Logout</button>
-    </nav>
-
-    <div class="container">
-        <div class="stats-grid">
-            <div class="stat-card"><h3>Registered Students</h3><div class="value" id="stat-students">0</div></div>
-            <div class="stat-card"><h3>Meals Recorded Today</h3><div class="value" id="stat-meals">0</div></div>
-            <div class="stat-card"><h3>Active Issues</h3><div class="value" id="stat-issues">0</div></div>
-        </div>
-
-        <div class="search-container">
-            <i class="fas fa-search" style="color:var(--yellow)"></i>
-            <input type="text" id="globalSearch" class="search-input" placeholder="Live search by Student Name, ID, or Room Number..." onkeyup="filterData()">
-        </div>
-
-        <div class="section-header">
-            <div class="section-title"><i class="fas fa-users-cog"></i> Student Directory</div>
-        </div>
-        <div class="table-wrapper">
-            <table>
-                <thead><tr><th>ID</th><th>Full Name</th><th>Room</th><th>Plan</th><th>Actions</th></tr></thead>
-                <tbody id="user-list"></tbody>
-            </table>
-        </div>
-
-        <div class="section-header">
-            <div class="section-title"><i class="fas fa-clipboard-list"></i> Recent Activity Logs</div>
-        </div>
-        <div class="table-wrapper">
-            <table>
-                <thead><tr><th>ID</th><th>Student Name</th><th>Timestamp</th><th>Meals Logged</th></tr></thead>
-                <tbody id="activity-list"></tbody>
-            </table>
-        </div>
+    <div class="stats-grid">
+        <div class="stat-card"><h3>Registered Students</h3><div class="value" id="stat-students">0</div></div>
+        <div class="stat-card"><h3>Meals Today</h3><div class="value" id="stat-meals">0</div></div>
+        <div class="stat-card"><h3>Active Complaints</h3><div class="value" id="stat-issues">0</div></div>
     </div>
 
+    <div class="search-container">
+        <i class="fas fa-search" style="color:var(--yellow); margin-right:10px;"></i>
+        <input type="text" id="globalSearch" class="search-input" placeholder="Search by Student ID, Name, or Date..." onkeyup="filterTable()">
+    </div>
+
+    <table>
+        <thead><tr><th>Student ID</th><th>Name</th><th>Date</th><th>Meals Logged</th></tr></thead>
+        <tbody id="activity-list"></tbody>
+    </table>
+
     <script>
-        // Security: Ensure only admins access this
-        if(localStorage.getItem('role') !== 'admin') { window.location.href = 'login.html'; }
+        let fullActivityData = [];
 
-        let allUsers = [];
-        let allActivity = [];
-
-        async function initAdmin() {
+        async function initDashboard() {
             try {
-                // Fetch Dashboard Stats
+                // Fetch stats (Fixes the "0" issue in image_c32f6e)
                 const stats = await (await fetch('/api/admin/stats')).json();
                 document.getElementById('stat-students').innerText = stats.totalStudents;
                 document.getElementById('stat-meals').innerText = stats.mealsToday;
                 document.getElementById('stat-issues').innerText = stats.activeComplaints;
 
-                // Fetch Student List
-                allUsers = await (await fetch('/api/admin/users')).json();
-                
-                // Fetch Activity Logs
-                allActivity = await (await fetch('/api/admin/activity')).json();
-
-                renderTables(allUsers, allActivity);
-            } catch (err) { console.error("Data fetch failed:", err); }
+                // Fetch activity for table (Fixes image_c32f6e table)
+                const res = await fetch('/api/admin/activity');
+                fullActivityData = await res.json();
+                renderTable(fullActivityData);
+            } catch (err) { console.error("Admin Load Error:", err); }
         }
 
-        function renderTables(userData, activityData) {
-            // Render User Directory
-            document.getElementById('user-list').innerHTML = userData.map(u => `
+        function renderTable(data) {
+            const body = document.getElementById('activity-list');
+            body.innerHTML = data.map(a => `
                 <tr>
-                    <td><strong>#${u.username}</strong></td>
-                    <td>${u.name || 'Unknown'}</td>
-                    <td>${u.room_no || 'N/A'}</td>
-                    <td>${u.plan_type || 'Standard'}</td>
-                    <td><button class="delete-btn" onclick="deleteUser('${u.username}')"><i class="fas fa-trash"></i> Delete</button></td>
-                </tr>
-            `).join('');
-
-            // Render Activity Logs
-            document.getElementById('activity-list').innerHTML = activityData.map(a => `
-                <tr>
-                    <td>#${a.username}</td>
+                    <td><strong>#${a.username}</strong></td>
                     <td>${a.name}</td>
                     <td>${a.date}</td>
-                    <td><span class="meal-pill">${a.last_action || 'No Meal Data'}</span></td>
+                    <td><span class="meal-pill">${a.last_action || 'Pending'}</span></td>
                 </tr>
             `).join('');
-        }
-
-        // Live Filter Function
-        function filterData() {
-            const query = document.getElementById('globalSearch').value.toLowerCase();
-            
-            const filteredUsers = allUsers.filter(u => 
-                u.username.toLowerCase().includes(query) || 
-                (u.name && u.name.toLowerCase().includes(query)) ||
-                (u.room_no && u.room_no.toLowerCase().includes(query))
-            );
-
-            const filteredActivity = allActivity.filter(a => 
-                a.username.toLowerCase().includes(query) || 
-                a.name.toLowerCase().includes(query)
-            );
-
-            renderTables(filteredUsers, filteredActivity);
-        }
-
-        async function deleteUser(id) {
-            if(confirm(`Are you sure you want to delete Student #${id}? This cannot be undone.`)) {
-                const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
-                if(res.ok) initAdmin();
+            if (data.length === 0) {
+                body.innerHTML = '<tr><td colspan="4" style="text-align:center;">No matching records found.</td></tr>';
             }
         }
 
-        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+        function filterTable() {
+            const q = document.getElementById('globalSearch').value.toLowerCase();
+            const filtered = fullActivityData.filter(item => 
+                item.username.toLowerCase().includes(q) || 
+                item.name.toLowerCase().includes(q) ||
+                item.date.includes(q)
+            );
+            renderTable(filtered);
+        }
 
-        window.onload = initAdmin;
+        window.onload = initDashboard;
     </script>
 </body>
 </html>
-
