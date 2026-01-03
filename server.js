@@ -11,8 +11,8 @@ const db = new sqlite3.Database('./messpro.db');
 
 db.serialize(() => {
     
-    //db.run("DROP TABLE IF EXISTS users");
-     //db.run("DROP TABLE IF EXISTS attendance");
+    db.run("DROP TABLE IF EXISTS users");
+    db.run("DROP TABLE IF EXISTS attendance");
 
     db.run(`CREATE TABLE IF NOT EXISTS users (
         username TEXT PRIMARY KEY, 
